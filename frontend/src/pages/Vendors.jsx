@@ -1,3 +1,4 @@
+
 import API from "../../api";
 
 import React, {
@@ -12,8 +13,6 @@ import {
   Phone,
   Building2,
   MapPin,
-  Moon,
-  Sun,
   Pencil,
   Trash2,
 } from "lucide-react";
@@ -181,7 +180,7 @@ function Vendors({
 
   return (
 
-    <div className="w-full min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] transition duration-300 p-6 md:p-10">
+    <div className="w-full min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] transition duration-300 p-4 md:p-10 overflow-x-hidden">
 
       {/* ================= HEADER ================= */}
 
@@ -189,13 +188,13 @@ function Vendors({
 
         <div>
 
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
 
             Vendor Management
 
           </h1>
 
-          <p className="text-gray-600 dark:text-gray-400 mt-3 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base md:text-lg">
 
             Add and manage all vendors professionally
 
@@ -203,13 +202,9 @@ function Vendors({
 
         </div>
 
-        {/* ================= BUTTONS ================= */}
+        {/* ================= BUTTON ================= */}
 
         <div className="flex items-center">
-
-          
-
-          {/* ================= ADD BUTTON ================= */}
 
           <button
             onClick={() => {
@@ -231,7 +226,7 @@ function Vendors({
               }
 
             }}
-            className="flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-7 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
+            className="w-full md:w-auto flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 md:px-7 py-4 rounded-2xl text-base md:text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
           >
 
             <Plus size={22} />
@@ -253,7 +248,7 @@ function Vendors({
       {
         showForm && (
 
-          <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] p-8 backdrop-blur-xl shadow-2xl shadow-purple-500/10 mb-10 transition duration-300">
+          <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] p-5 md:p-8 backdrop-blur-xl shadow-2xl shadow-purple-500/10 mb-10 transition duration-300">
 
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
 
@@ -411,7 +406,7 @@ function Vendors({
 
                 <button
                   type="submit"
-                  className="bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
+                  className="w-full md:w-auto bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
                 >
 
                   {
@@ -433,116 +428,126 @@ function Vendors({
 
       {/* ================= TABLE ================= */}
 
-      <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] overflow-hidden backdrop-blur-xl shadow-2xl shadow-purple-500/10">
+      <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
 
-        {/* ================= TABLE HEADER ================= */}
+        {/* ================= SCROLL CONTAINER ================= */}
 
-        <div className="grid grid-cols-6 bg-purple-500/20 border-b border-gray-200 dark:border-white/10 px-6 py-5">
+        <div className="overflow-x-auto">
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
-            Vendor Name
-          </h3>
+          <div className="min-w-[1000px]">
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
-            Email
-          </h3>
+            {/* ================= TABLE HEADER ================= */}
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
-            Phone
-          </h3>
+            <div className="grid grid-cols-6 bg-purple-500/20 border-b border-gray-200 dark:border-white/10 px-6 py-5">
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
-            Address
-          </h3>
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+                Vendor Name
+              </h3>
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
-            Business ID
-          </h3>
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+                Email
+              </h3>
 
-          <h3 className="text-gray-900 dark:text-white font-semibold text-lg text-center">
-            Actions
-          </h3>
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+                Phone
+              </h3>
 
-        </div>
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+                Address
+              </h3>
 
-        {/* ================= TABLE BODY ================= */}
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
+                Business ID
+              </h3>
 
-        {
-          vendors.length > 0 ? (
-
-            vendors.map((vendor, index) => (
-
-              <div
-                key={vendor._id}
-                className="grid grid-cols-6 px-6 py-5 border-b border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition duration-300"
-              >
-
-                <p className="text-gray-700 dark:text-gray-300">
-                  {vendor.vendorName}
-                </p>
-
-                <p className="text-gray-700 dark:text-gray-300">
-                  {vendor.email}
-                </p>
-
-                <p className="text-gray-700 dark:text-gray-300">
-                  {vendor.phone}
-                </p>
-
-                <p className="text-gray-700 dark:text-gray-300">
-                  {vendor.address}
-                </p>
-
-                <p className="text-gray-700 dark:text-gray-300">
-                  {vendor.businessId}
-                </p>
-
-                {/* ================= ACTION BUTTONS ================= */}
-
-                <div className="flex items-center justify-center gap-3">
-
-                  {/* ================= EDIT ================= */}
-
-                  <button
-                    onClick={() => handleEdit(index)}
-                    className="w-10 h-10 rounded-xl bg-blue-500 hover:bg-blue-400 flex items-center justify-center text-white transition duration-300"
-                  >
-
-                    <Pencil size={18} />
-
-                  </button>
-
-                  {/* ================= DELETE ================= */}
-
-                  <button
-                    onClick={() => handleDelete(vendor._id)}
-                    className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-400 flex items-center justify-center text-white transition duration-300"
-                  >
-
-                    <Trash2 size={18} />
-
-                  </button>
-
-                </div>
-
-              </div>
-
-            ))
-
-          ) : (
-
-            <div className="py-14 text-center">
-
-              <p className="text-gray-500 text-lg">
-
-                No vendors added yet
-
-              </p>
+              <h3 className="text-gray-900 dark:text-white font-semibold text-lg text-center">
+                Actions
+              </h3>
 
             </div>
 
-          )
-        }
+            {/* ================= TABLE BODY ================= */}
+
+            {
+              vendors.length > 0 ? (
+
+                vendors.map((vendor, index) => (
+
+                  <div
+                    key={vendor._id}
+                    className="grid grid-cols-6 px-6 py-5 border-b border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition duration-300 items-center"
+                  >
+
+                    <p className="text-gray-700 dark:text-gray-300 break-words pr-4">
+                      {vendor.vendorName}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300 break-words pr-4">
+                      {vendor.email}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {vendor.phone}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300 break-words pr-4">
+                      {vendor.address}
+                    </p>
+
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {vendor.businessId}
+                    </p>
+
+                    {/* ================= ACTION BUTTONS ================= */}
+
+                    <div className="flex items-center justify-center gap-3">
+
+                      {/* ================= EDIT ================= */}
+
+                      <button
+                        onClick={() => handleEdit(index)}
+                        className="w-10 h-10 rounded-xl bg-blue-500 hover:bg-blue-400 flex items-center justify-center text-white transition duration-300"
+                      >
+
+                        <Pencil size={18} />
+
+                      </button>
+
+                      {/* ================= DELETE ================= */}
+
+                      <button
+                        onClick={() => handleDelete(vendor._id)}
+                        className="w-10 h-10 rounded-xl bg-red-500 hover:bg-red-400 flex items-center justify-center text-white transition duration-300"
+                      >
+
+                        <Trash2 size={18} />
+
+                      </button>
+
+                    </div>
+
+                  </div>
+
+                ))
+
+              ) : (
+
+                <div className="py-14 text-center">
+
+                  <p className="text-gray-500 text-lg">
+
+                    No vendors added yet
+
+                  </p>
+
+                </div>
+
+              )
+            }
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -551,3 +556,4 @@ function Vendors({
 }
 
 export default Vendors;
+

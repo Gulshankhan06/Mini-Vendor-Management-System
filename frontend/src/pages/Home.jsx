@@ -1,20 +1,41 @@
-
-
-import React from "react";
+import React, { useState } from "react";
 
 import {
   useNavigate,
+  Link,
 } from "react-router-dom";
 
-import Navbar from "../components/Navbar";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  Users,
+  Package,
+  LogOut,
+  Moon,
+  Sun,
+} from "lucide-react";
 
 function Home({
   darkMode,
   setDarkMode,
   isAuthenticated,
+  setIsAuthenticated,
 }) {
 
   const navigate = useNavigate();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogout = () => {
+
+    localStorage.removeItem("isAuthenticated");
+
+    setIsAuthenticated(false);
+
+    navigate("/");
+
+  };
 
   return (
 
@@ -26,16 +47,178 @@ function Home({
 
       <div className="absolute bottom-[-120px] right-[-120px] w-[350px] h-[350px] bg-purple-700/20 blur-[120px] rounded-full"></div>
 
-      {/* ================= NAVBAR ================= */}
+      {/* ================= MOBILE NAVBAR ================= */}
 
       {
         isAuthenticated && (
 
-          <Navbar
-            darkMode={darkMode}
-            setDarkMode={setDarkMode}
-            isAuthenticated={isAuthenticated}
-          />
+          <div className="lg:hidden w-full flex items-center justify-between px-5 py-5 border-b border-gray-200 dark:border-white/10 backdrop-blur-xl relative z-50">
+
+            {/* LOGO */}
+
+            <div className="flex items-center gap-3">
+
+              <div className="w-11 h-11 rounded-2xl bg-purple-500 flex items-center justify-center text-white font-bold text-xl">
+
+                V
+
+              </div>
+
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+
+                VendorFlow
+
+              </h1>
+
+            </div>
+
+            {/* MENU BUTTON */}
+
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="text-gray-900 dark:text-white"
+            >
+
+              <Menu size={34} />
+
+            </button>
+
+          </div>
+
+        )
+      }
+
+      {/* ================= MOBILE MENU ================= */}
+
+      {
+        menuOpen && (
+
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999] lg:hidden">
+
+            <div className="w-[280px] h-full bg-white dark:bg-[#0F172A] p-6 flex flex-col justify-between">
+
+              {/* TOP */}
+
+              <div>
+
+                {/* HEADER */}
+
+                <div className="flex items-center justify-between mb-10">
+
+                  <div className="flex items-center gap-3">
+
+                    <div className="w-11 h-11 rounded-2xl bg-purple-500 flex items-center justify-center text-white font-bold text-xl">
+
+                      V
+
+                    </div>
+
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+
+                      VendorFlow
+
+                    </h1>
+
+                  </div>
+
+                  <button
+                    onClick={() => setMenuOpen(false)}
+                    className="text-gray-900 dark:text-white"
+                  >
+
+                    <X size={30} />
+
+                  </button>
+
+                </div>
+
+                {/* MENU LINKS */}
+
+                <div className="space-y-5">
+
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-4 bg-purple-500/20 text-gray-900 dark:text-white px-5 py-4 rounded-2xl"
+                  >
+
+                    <LayoutDashboard size={22} />
+
+                    Dashboard
+
+                  </Link>
+
+                  <Link
+                    to="/vendors"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 px-5 py-4 rounded-2xl transition duration-300"
+                  >
+
+                    <Users size={22} />
+
+                    Vendors
+
+                  </Link>
+
+                  <Link
+                    to="/products"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 px-5 py-4 rounded-2xl transition duration-300"
+                  >
+
+                    <Package size={22} />
+
+                    Products
+
+                  </Link>
+
+                </div>
+
+              </div>
+
+              {/* BOTTOM */}
+
+              <div className="space-y-4">
+
+                {/* DARK MODE BUTTON */}
+
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="w-full flex items-center justify-center gap-3 bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white py-4 rounded-2xl font-semibold"
+                >
+
+                  {
+                    darkMode
+                      ? <Sun size={20} />
+                      : <Moon size={20} />
+                  }
+
+                  {
+                    darkMode
+                      ? "Light Mode"
+                      : "Dark Mode"
+                  }
+
+                </button>
+
+                {/* LOGOUT BUTTON */}
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-400 text-white py-4 rounded-2xl font-semibold transition duration-300"
+                >
+
+                  <LogOut size={20} />
+
+                  Logout
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
 
         )
       }
@@ -46,7 +229,7 @@ function Home({
 
         <div className="max-w-6xl mx-auto text-center">
 
-          {/* ================= TOP BADGE ================= */}
+          {/* TOP BADGE */}
 
           <div className="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 backdrop-blur-xl mb-10">
 
@@ -60,7 +243,7 @@ function Home({
 
           </div>
 
-          {/* ================= MAIN HEADING ================= */}
+          {/* HEADING */}
 
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.1] tracking-tight text-gray-900 dark:text-white">
 
@@ -74,7 +257,7 @@ function Home({
 
           </h1>
 
-          {/* ================= DESCRIPTION ================= */}
+          {/* DESCRIPTION */}
 
           <p className="text-gray-600 dark:text-gray-400 text-lg sm:text-xl leading-relaxed mt-10 max-w-3xl mx-auto">
 
@@ -84,11 +267,9 @@ function Home({
 
           </p>
 
-          {/* ================= BUTTONS ================= */}
+          {/* BUTTONS */}
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-5 mt-14">
-
-            {/* ================= LOGIN BUTTON ================= */}
 
             {
               !isAuthenticated && (
@@ -105,8 +286,6 @@ function Home({
               )
             }
 
-            {/* ================= DASHBOARD BUTTON ================= */}
-
             {
               isAuthenticated && (
 
@@ -122,73 +301,11 @@ function Home({
               )
             }
 
-            {/* ================= SECOND BUTTON ================= */}
-
             <button className="bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 hover:border-purple-400 hover:text-purple-400 text-gray-900 dark:text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 backdrop-blur-xl w-full sm:w-auto">
 
               Learn More
 
             </button>
-
-          </div>
-
-          {/* ================= STATS ================= */}
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-20">
-
-            {/* ================= CARD 1 ================= */}
-
-            <div className="bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-3xl p-8 backdrop-blur-xl hover:border-purple-400 transition duration-300">
-
-              <h2 className="text-4xl font-bold text-purple-500 dark:text-purple-400 mb-3">
-
-                10K+
-
-              </h2>
-
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-
-                Active Vendors
-
-              </p>
-
-            </div>
-
-            {/* ================= CARD 2 ================= */}
-
-            <div className="bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-3xl p-8 backdrop-blur-xl hover:border-purple-400 transition duration-300">
-
-              <h2 className="text-4xl font-bold text-purple-500 dark:text-purple-400 mb-3">
-
-                98%
-
-              </h2>
-
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-
-                Client Satisfaction
-
-              </p>
-
-            </div>
-
-            {/* ================= CARD 3 ================= */}
-
-            <div className="bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-3xl p-8 backdrop-blur-xl hover:border-purple-400 transition duration-300">
-
-              <h2 className="text-4xl font-bold text-purple-500 dark:text-purple-400 mb-3">
-
-                24/7
-
-              </h2>
-
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-
-                Premium Support
-
-              </p>
-
-            </div>
 
           </div>
 

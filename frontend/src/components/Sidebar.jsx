@@ -10,7 +10,13 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="w-64 bg-[#0f172a] text-white min-h-screen p-5">
+    <div className={`
+fixed top-0 left-0 h-full z-50
+w-64 bg-[#111827]
+transform transition-transform duration-300
+${isOpen ? "translate-x-0" : "-translate-x-full"}
+md:translate-x-0
+`} >
 
       <h1 className="text-2xl font-bold mb-8 text-blue-400">
         VMS System

@@ -182,7 +182,7 @@ function Products({ darkMode }) {
   return (
 
     <div
-      className={`w-full min-h-screen p-6 md:p-10 transition duration-300 ${
+      className={`w-full min-h-screen p-4 sm:p-6 md:p-10 transition duration-300 overflow-x-hidden ${
         darkMode
           ? "bg-[#070B14]"
           : "bg-gray-100"
@@ -196,7 +196,7 @@ function Products({ darkMode }) {
         <div>
 
           <h1
-            className={`text-4xl font-bold ${
+            className={`text-3xl sm:text-4xl font-bold ${
               darkMode
                 ? "text-white"
                 : "text-gray-900"
@@ -206,7 +206,7 @@ function Products({ darkMode }) {
           </h1>
 
           <p
-            className={`mt-3 text-lg ${
+            className={`mt-3 text-base sm:text-lg ${
               darkMode
                 ? "text-gray-400"
                 : "text-gray-600"
@@ -238,7 +238,7 @@ function Products({ darkMode }) {
             }
 
           }}
-          className="flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-7 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
+          className="w-full sm:w-auto flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 py-4 rounded-2xl text-base sm:text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
         >
 
           <Plus size={22} />
@@ -258,7 +258,7 @@ function Products({ darkMode }) {
       {showForm && (
 
         <div
-          className={`rounded-[30px] p-8 backdrop-blur-xl shadow-2xl mb-10 transition duration-300 ${
+          className={`rounded-[30px] p-5 sm:p-8 backdrop-blur-xl shadow-2xl mb-10 transition duration-300 ${
             darkMode
               ? "bg-white/5 border border-white/10 shadow-purple-500/10"
               : "bg-white border border-gray-200 shadow-gray-300/40"
@@ -452,11 +452,11 @@ function Products({ darkMode }) {
 
             {/* SAVE BUTTON */}
 
-            <div className="md:col-span-2 flex justify-end mt-4">
+            <div className="md:col-span-2 flex justify-center md:justify-end mt-4">
 
               <button
                 type="submit"
-                className="bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
+                className="w-full sm:w-auto bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
               >
 
                 {
@@ -475,10 +475,119 @@ function Products({ darkMode }) {
 
       )}
 
-      {/* ================= TABLE ================= */}
+      {/* ================= MOBILE CARD VIEW ================= */}
+
+      <div className="block lg:hidden space-y-5">
+
+        {
+          products.length > 0 ? (
+
+            products.map((product) => (
+
+              <div
+                key={product._id}
+                className={`rounded-3xl p-5 ${
+                  darkMode
+                    ? "bg-white/5 border border-white/10"
+                    : "bg-white border border-gray-200"
+                }`}
+              >
+
+                <div className="space-y-3">
+
+                  <div>
+                    <p className="text-sm text-gray-400">
+                      Product Name
+                    </p>
+
+                    <h3 className={`text-lg font-semibold ${
+                      darkMode
+                        ? "text-white"
+                        : "text-gray-900"
+                    }`}>
+                      {product.productName}
+                    </h3>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-400">
+                      Category
+                    </p>
+
+                    <p className={darkMode ? "text-gray-300" : "text-gray-700"}>
+                      {product.category}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-400">
+                      Price
+                    </p>
+
+                    <p className={darkMode ? "text-gray-300" : "text-gray-700"}>
+                      ₹ {product.price}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-400">
+                      Quantity
+                    </p>
+
+                    <p className={darkMode ? "text-gray-300" : "text-gray-700"}>
+                      {product.quantity}
+                    </p>
+                  </div>
+
+                  {/* ACTIONS */}
+
+                  <div className="flex items-center gap-3 pt-3">
+
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="flex-1 h-12 rounded-2xl bg-blue-500 hover:bg-blue-400 flex items-center justify-center text-white"
+                    >
+
+                      <Pencil size={18} />
+
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="flex-1 h-12 rounded-2xl bg-red-500 hover:bg-red-400 flex items-center justify-center text-white"
+                    >
+
+                      <Trash2 size={18} />
+
+                    </button>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            ))
+
+          ) : (
+
+            <div className="py-14 text-center">
+
+              <p className="text-gray-500 text-lg">
+                No products added yet
+              </p>
+
+            </div>
+
+          )
+        }
+
+      </div>
+
+      {/* ================= DESKTOP TABLE ================= */}
 
       <div
-        className={`rounded-[30px] overflow-hidden backdrop-blur-xl shadow-2xl ${
+        className={`hidden lg:block rounded-[30px] overflow-hidden backdrop-blur-xl shadow-2xl mt-6 ${
           darkMode
             ? "bg-white/5 border border-white/10 shadow-purple-500/10"
             : "bg-white border border-gray-200 shadow-gray-300/40"
@@ -495,23 +604,23 @@ function Products({ darkMode }) {
           }`}
         >
 
-          <h3 className="font-semibold text-lg text-gray-900">
+          <h3 className="font-semibold text-lg text-white">
             Product Name
           </h3>
 
-          <h3 className="font-semibold text-lg  text-gray-900">
+          <h3 className="font-semibold text-lg text-white">
             Category
           </h3>
 
-          <h3 className="font-semibold text-lg  text-gray-900">
+          <h3 className="font-semibold text-lg text-white">
             Price
           </h3>
 
-          <h3 className="font-semibold text-lg  text-gray-900">
+          <h3 className="font-semibold text-lg text-white">
             Quantity
           </h3>
 
-          <h3 className="font-semibold text-lg  text-gray-900 text-center">
+          <h3 className="font-semibold text-lg text-white text-center">
             Actions
           </h3>
 
