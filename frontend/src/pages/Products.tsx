@@ -1,4 +1,4 @@
-import API from "../../api";
+import API from "../services/api";
 
 import React, {
   useState,
@@ -14,37 +14,53 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import Sidebar from "../components/Sidebar";
 
-function Products({ darkMode }) {
+interface Product {
+  _id: string;
+  productName: string;
+  category: string;
+  price: string;
+  quantity: string;
+}
 
-  const [showForm, setShowForm] = useState(false);
+interface FormData {
+  productName: string;
+  category: string;
+  price: string;
+  quantity: string;
+}
 
-  const [products, setProducts] = useState([]);
+interface ProductsProps {
+  darkMode: boolean;
+}
 
-  const [editId, setEditId] = useState(null);
+function Products({ darkMode }: ProductsProps) {
 
-  const [formData, setFormData] = useState({
+  const [showForm, setShowForm] = useState<boolean>(false);
+
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const [editId, setEditId] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<FormData>({
     productName: "",
     category: "",
     price: "",
     quantity: "",
   });
 
-  /* ================= FETCH PRODUCTS ================= */
-
   useEffect(() => {
-
     fetchProducts();
-
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (): Promise<void> => {
 
     try {
 
       const res = await API.get("/products/all");
 
-      setProducts(res.data.products);
+      setProducts(res.data.products as Product[]);
 
     } catch (error) {
 
@@ -54,9 +70,9 @@ function Products({ darkMode }) {
 
   };
 
-  /* ================= HANDLE INPUT ================= */
-
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
 
     setFormData({
       ...formData,
@@ -65,9 +81,9 @@ function Products({ darkMode }) {
 
   };
 
-  /* ================= SAVE PRODUCT ================= */
-
-  const handleSaveProduct = async (e) => {
+  const handleSaveProduct = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
 
     e.preventDefault();
 
@@ -86,8 +102,6 @@ function Products({ darkMode }) {
 
     try {
 
-      /* ================= UPDATE PRODUCT ================= */
-
       if (editId) {
 
         const res = await API.put(
@@ -96,7 +110,7 @@ function Products({ darkMode }) {
         );
 
         setProducts(
-          products.map((product) =>
+          products.map((product: Product) =>
             product._id === editId
               ? res.data.product
               : product
@@ -106,8 +120,6 @@ function Products({ darkMode }) {
         setEditId(null);
 
       } else {
-
-        /* ================= ADD PRODUCT ================= */
 
         const res = await API.post(
           "/products/add",
@@ -120,8 +132,6 @@ function Products({ darkMode }) {
         ]);
 
       }
-
-      /* ================= RESET FORM ================= */
 
       setFormData({
         productName: "",
@@ -140,9 +150,9 @@ function Products({ darkMode }) {
 
   };
 
-  /* ================= EDIT PRODUCT ================= */
-
-  const handleEdit = (product) => {
+  const handleEdit = (
+    product: Product
+  ): void => {
 
     setFormData({
       productName: product.productName,
@@ -157,9 +167,9 @@ function Products({ darkMode }) {
 
   };
 
-  /* ================= DELETE PRODUCT ================= */
-
-  const handleDelete = async (id) => {
+  const handleDelete = async (
+    id: string
+  ): Promise<void> => {
 
     try {
 
@@ -167,7 +177,8 @@ function Products({ darkMode }) {
 
       setProducts(
         products.filter(
-          (product) => product._id !== id
+          (product: Product) =>
+            product._id !== id
         )
       );
 
@@ -178,80 +189,43 @@ function Products({ darkMode }) {
     }
 
   };
-
   return (
 
-    <div
-      className={`w-full min-h-screen p-4 sm:p-6 md:p-10 transition duration-300 overflow-x-hidden ${
-        darkMode
-          ? "bg-[#070B14]"
-          : "bg-gray-100"
-      }`}
-    >
+    
 
+  <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
+
+    {/* ============ LEFT SIDEBAR ============ */}
+    <div className="w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
+      <Sidebar />
+    </div>
+
+    {/* ============ RIGHT MAIN CONTENT ============ */}
+    <div className="flex-1 p-4 md:p-10 overflow-x-hidden">
       {/* ================= HEADER ================= */}
+<div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-10">
+  <div>
+    <h1
+  className={`text-3xl md:text-5xl font-bold ${
+    darkMode ? "text-white" : "text-gray-950"
+  }`}
+>Product Management</h1>
 
-        <div>
+    <p className="text-gray-400 mt-3 text-lg">
+      Add and manage all products professionally
+    </p>
+  </div>
 
-          <h1
-            className={`text-3xl sm:text-4xl font-bold ${
-              darkMode
-                ? "text-white"
-                : "text-gray-900"
-            }`}
-          >
-            Product Management
-          </h1>
+  <button
+    onClick={() => setShowForm(!showForm)}
+    className="flex items-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 py-4 rounded-2xl font-semibold"
+  >
+    <Plus size={22} />
+    {editId ? "Edit Product" : "Add Product"}
+  </button>
 
-          <p
-            className={`mt-3 text-base sm:text-lg ${
-              darkMode
-                ? "text-gray-400"
-                : "text-gray-600"
-            }`}
-          >
-            Add and manage all products professionally
-          </p>
-
-        </div>
-
-        {/* ================= ADD BUTTON ================= */}
-
-        <button
-          onClick={() => {
-
-            setShowForm(!showForm);
-
-            if (showForm) {
-
-              setEditId(null);
-
-              setFormData({
-                productName: "",
-                category: "",
-                price: "",
-                quantity: "",
-              });
-
-            }
-
-          }}
-          className="w-full sm:w-auto flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 py-4 rounded-2xl text-base sm:text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
-        >
-
-          <Plus size={22} />
-
-          {
-            editId
-              ? "Edit Product"
-              : "Add Product"
-          }
-
-        </button>
-
-      </div>
+</div>
 
       {/* ================= FORM ================= */}
 
@@ -603,27 +577,25 @@ function Products({ darkMode }) {
               : "bg-purple-100 border-b border-gray-200"
           }`}
         >
+<h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-950"}`}>
+  Product Name
+</h3>
 
-          <h3 className="font-semibold text-lg text-white">
-            Product Name
-          </h3>
+<h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-950"}`}>
+  Category
+</h3>
 
-          <h3 className="font-semibold text-lg text-white">
-            Category
-          </h3>
+<h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-950"}`}>
+  Price
+</h3>
 
-          <h3 className="font-semibold text-lg text-white">
-            Price
-          </h3>
+<h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-950"}`}>
+  Quantity
+</h3>
 
-          <h3 className="font-semibold text-lg text-white">
-            Quantity
-          </h3>
-
-          <h3 className="font-semibold text-lg text-white text-center">
-            Actions
-          </h3>
-
+<h3 className={`font-semibold text-lg text-center ${darkMode ? "text-white" : "text-gray-950"}`}>
+  Actions
+</h3>
         </div>
 
         {/* BODY */}
@@ -642,7 +614,7 @@ function Products({ darkMode }) {
                 }`}
               >
 
-                <p className={darkMode ? "text-gray-300" : "text-gray-700"}>
+                <p className={darkMode ? "text-white" : "text-gray-700"}>
                   {product.productName}
                 </p>
 
@@ -701,6 +673,7 @@ function Products({ darkMode }) {
 
       </div>
 
+    </div>
     </div>
 
   );

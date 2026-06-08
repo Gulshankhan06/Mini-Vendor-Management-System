@@ -12,64 +12,71 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+interface LoginProps {
+  darkMode: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+interface FormData {
+  email: string;
+  password: string;
+}
+
 function Login({
   darkMode,
   setIsAuthenticated,
-}) {
+}: LoginProps) {
 
   const navigate = useNavigate();
 
   // ================= FORM STATE =================
+const [formData, setFormData] = useState<FormData>({
+  email: "",
+  password: "",
+});
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+
+
+// ================= HANDLE CHANGE =================
+
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement>
+): void => {
+
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value,
   });
 
-  // ================= HANDLE CHANGE =================
+};
 
-  const handleChange = (e) => {
+// ================= HANDLE LOGIN =================
 
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+const handleLogin = (
+  e: React.FormEvent<HTMLFormElement>
+): void => {
 
-  };
+  e.preventDefault();
 
-  // ================= HANDLE LOGIN =================
+  if (
+    !formData.email ||
+    !formData.password
+  ) {
 
-  const handleLogin = (e) => {
+    alert("Please fill all fields");
+    return;
+  }
 
-    e.preventDefault();
+  localStorage.setItem(
+    "isAuthenticated",
+    "true"
+  );
 
-    // SIMPLE VALIDATION
+  setIsAuthenticated(true);
 
-    if (
-      !formData.email ||
-      !formData.password
-    ) {
+  navigate("/");
 
-      alert("Please fill all fields");
-
-      return;
-    }
-
-    // SAVE LOGIN STATE
-
-    localStorage.setItem(
-      "isAuthenticated",
-      "true"
-    );
-
-    setIsAuthenticated(true);
-
-    // REDIRECT TO HOME PAGE
-
-    navigate("/");
-
-  };
-
+};
   return (
 
     <div className={`${darkMode ? "dark" : ""}`}>

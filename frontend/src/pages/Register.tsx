@@ -1,5 +1,3 @@
-
-
 import React from "react";
 
 import {
@@ -7,16 +5,11 @@ import {
   Mail,
   Phone,
   Lock,
-  Moon,
-  Sun,
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
 
-function Registration({
-  darkMode,
-  setDarkMode,
-}) {
+function Registration() {
 
   return (
 
@@ -28,8 +21,6 @@ function Registration({
 
       <div className="absolute bottom-[-120px] right-[-120px] w-[300px] h-[300px] bg-purple-700/20 blur-[120px] rounded-full"></div>
 
-      
-
       {/* ================= REGISTER CARD ================= */}
 
       <div className="w-full max-w-md bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 backdrop-blur-xl rounded-[32px] p-8 sm:p-10 relative z-10 shadow-2xl shadow-purple-500/10 transition duration-300">
@@ -39,15 +30,11 @@ function Registration({
         <div className="text-center">
 
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-
             Create Account
-
           </h1>
 
           <p className="text-gray-600 dark:text-gray-400 mt-4 text-lg">
-
             Register to manage your vendors easily
-
           </p>
 
         </div>
@@ -61,9 +48,7 @@ function Registration({
           <div>
 
             <label className="text-gray-700 dark:text-gray-300 text-sm font-medium block mb-3">
-
               Full Name
-
             </label>
 
             <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl px-4 h-14 focus-within:border-purple-400 transition duration-300">
@@ -85,9 +70,7 @@ function Registration({
           <div>
 
             <label className="text-gray-700 dark:text-gray-300 text-sm font-medium block mb-3">
-
               Email Address
-
             </label>
 
             <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl px-4 h-14 focus-within:border-purple-400 transition duration-300">
@@ -109,9 +92,7 @@ function Registration({
           <div>
 
             <label className="text-gray-700 dark:text-gray-300 text-sm font-medium block mb-3">
-
               Phone Number
-
             </label>
 
             <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl px-4 h-14 focus-within:border-purple-400 transition duration-300">
@@ -133,9 +114,7 @@ function Registration({
           <div>
 
             <label className="text-gray-700 dark:text-gray-300 text-sm font-medium block mb-3">
-
               Password
-
             </label>
 
             <div className="flex items-center bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10 rounded-2xl px-4 h-14 focus-within:border-purple-400 transition duration-300">
@@ -158,9 +137,7 @@ function Registration({
             type="submit"
             className="w-full bg-purple-500 hover:bg-purple-400 text-white h-14 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
           >
-
             Register
-
           </button>
 
         </form>
@@ -177,9 +154,7 @@ function Registration({
               to="/login"
               className="text-purple-500 dark:text-purple-400 hover:text-purple-300 cursor-pointer transition duration-300 font-medium"
             >
-
               Login Now
-
             </Link>
 
           </p>

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { Link, useNavigate } from "react-router-dom";
 
-import API from "../../api";
+import API from "../services/api";
 
 import {
   LayoutDashboard,
@@ -12,21 +12,23 @@ import {
   LogOut,
 } from "lucide-react";
 
+interface DashboardProps {
+  darkMode: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 function Dashboard({
   darkMode,
   setIsAuthenticated,
-}) {
-
+}: DashboardProps) {
   const navigate = useNavigate();
 
   // ================= STATES =================
+const [totalVendors, setTotalVendors] = useState<number>(0);
 
-  const [totalVendors, setTotalVendors] = useState(0);
+const [totalProducts, setTotalProducts] = useState<number>(0);
 
-  const [totalProducts, setTotalProducts] = useState(0);
-
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
+const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   // ================= FETCH DATA =================
 
   useEffect(() => {
@@ -35,8 +37,7 @@ function Dashboard({
 
   }, []);
 
-  const fetchDashboardData = async () => {
-
+const fetchDashboardData = async (): Promise<void> => {
     try {
 
       // ================= FETCH VENDORS =================
@@ -69,8 +70,7 @@ function Dashboard({
 
   // ================= LOGOUT =================
 
-  const handleLogout = () => {
-
+const handleLogout = (): void => {
     localStorage.removeItem(
       "isAuthenticated"
     );

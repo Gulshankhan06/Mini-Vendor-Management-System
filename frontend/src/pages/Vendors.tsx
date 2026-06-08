@@ -1,5 +1,4 @@
-
-import API from "../../api";
+import API from "../services/api";
 
 import React, {
   useState,
@@ -16,19 +15,42 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import Sidebar from "../components/Sidebar";
+
+interface Vendor {
+  _id: string;
+  vendorName: string;
+  email: string;
+  phone: string;
+  address: string;
+  businessId: string;
+}
+
+interface FormData {
+  vendorName: string;
+  email: string;
+  phone: string;
+  address: string;
+  businessId: string;
+}
+
+interface VendorsProps {
+  darkMode: boolean;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 function Vendors({
   darkMode,
   setDarkMode,
-}) {
+}: VendorsProps) {
 
-  const [showForm, setShowForm] = useState(false);
+  const [showForm, setShowForm] = useState<boolean>(false);
 
-  const [vendors, setVendors] = useState([]);
+  const [vendors, setVendors] = useState<Vendor[]>([]);
 
-  const [editIndex, setEditIndex] = useState(null);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     vendorName: "",
     email: "",
     phone: "",
@@ -36,44 +58,31 @@ function Vendors({
     businessId: "",
   });
 
-  /* ================= FETCH VENDORS ================= */
-
   useEffect(() => {
-
     fetchVendors();
-
   }, []);
 
-  const fetchVendors = async () => {
-
+  const fetchVendors = async (): Promise<void> => {
     try {
-
       const res = await API.get("/vendors/all");
-
-      setVendors(res.data.vendors);
-
+      setVendors(res.data.vendors as Vendor[]);
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
-  /* ================= HANDLE INPUT ================= */
-
-  const handleChange = (e) => {
-
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
-
   };
 
-  /* ================= SAVE VENDOR ================= */
-
-  const handleSaveVendor = async (e) => {
+  const handleSaveVendor = async (
+    e: React.FormEvent<HTMLFormElement>
+  ): Promise<void> => {
 
     e.preventDefault();
 
@@ -84,16 +93,11 @@ function Vendors({
       !formData.address ||
       !formData.businessId
     ) {
-
       alert("Please fill all fields");
-
       return;
-
     }
 
     try {
-
-      /* ================= UPDATE ================= */
 
       if (editIndex !== null) {
 
@@ -103,12 +107,9 @@ function Vendors({
         );
 
         fetchVendors();
-
         setEditIndex(null);
 
       } else {
-
-        /* ================= ADD ================= */
 
         const res = await API.post(
           "/vendors/add",
@@ -119,10 +120,7 @@ function Vendors({
           res.data.vendor,
           ...vendors,
         ]);
-
       }
-
-      /* ================= RESET ================= */
 
       setFormData({
         vendorName: "",
@@ -135,16 +133,11 @@ function Vendors({
       setShowForm(false);
 
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
-  /* ================= EDIT ================= */
-
-  const handleEdit = (index) => {
+  const handleEdit = (index: number): void => {
 
     setFormData({
       vendorName: vendors[index].vendorName,
@@ -155,93 +148,74 @@ function Vendors({
     });
 
     setEditIndex(index);
-
     setShowForm(true);
-
   };
 
-  /* ================= DELETE ================= */
-
-  const handleDelete = async (id) => {
+  const handleDelete = async (
+    id: string
+  ): Promise<void> => {
 
     try {
 
       await API.delete(`/vendors/${id}`);
-
       fetchVendors();
 
     } catch (error) {
-
       console.log(error);
-
     }
-
   };
 
   return (
 
-    <div className="w-full min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] transition duration-300 p-4 md:p-10 overflow-x-hidden">
+    
+  <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
 
-      {/* ================= HEADER ================= */}
+  {/* LEFT SIDEBAR */}
+  <div className="w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
+    <Sidebar />
+  </div>
 
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
+  {/* RIGHT MAIN CONTENT */}
+  <div className="flex-1 p-4 md:p-10 overflow-x-hidden">
 
-        <div>
+    {/* HEADER */}
+    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 
-          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white leading-tight">
+      <div>
+        <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white">
+          vendor Management
+        </h1>
 
-            Vendor Management
-
-          </h1>
-
-          <p className="text-gray-600 dark:text-gray-400 mt-3 text-base md:text-lg">
-
-            Add and manage all vendors professionally
-
-          </p>
-
-        </div>
-
-        {/* ================= BUTTON ================= */}
-
-        <div className="flex items-center">
-
-          <button
-            onClick={() => {
-
-              setShowForm(!showForm);
-
-              if (showForm) {
-
-                setEditIndex(null);
-
-                setFormData({
-                  vendorName: "",
-                  email: "",
-                  phone: "",
-                  address: "",
-                  businessId: "",
-                });
-
-              }
-
-            }}
-            className="w-full md:w-auto flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 md:px-7 py-4 rounded-2xl text-base md:text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
-          >
-
-            <Plus size={22} />
-
-            {
-              editIndex !== null
-                ? "Edit Vendor"
-                : "Add Vendor"
-            }
-
-          </button>
-
-        </div>
-
+        <p className="text-gray-600 dark:text-gray-400 mt-3 text-base md:text-lg">
+          Add and manage all vendors professionally
+        </p>
       </div>
+
+      <div className="flex items-center">
+        <button
+          onClick={() => {
+            setShowForm(!showForm);
+
+            if (showForm) {
+              setEditIndex(null);
+
+              setFormData({
+                vendorName: "",
+                 email: "",
+                 phone: "",
+                 address: "",
+                 businessId: "",
+              });
+            }
+          }}
+          className="w-full md:w-auto flex items-center justify-center gap-3 bg-purple-500 hover:bg-purple-400 text-white px-6 md:px-7 py-4 rounded-2xl text-base md:text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
+        >
+          <Plus size={22} />
+{editIndex !== null ? "Edit Vendor" : "Add Vendor"}
+        </button>
+      </div>
+
+    </div>
 
       {/* ================= FORM ================= */}
 
@@ -409,11 +383,7 @@ function Vendors({
                   className="w-full md:w-auto bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
                 >
 
-                  {
-                    editIndex !== null
-                      ? "Update Vendor"
-                      : "Save Vendor"
-                  }
+                add vendor
 
                 </button>
 
@@ -552,8 +522,8 @@ function Vendors({
       </div>
 
     </div>
+    </div>
   );
 }
 
 export default Vendors;
-

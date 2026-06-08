@@ -16,19 +16,25 @@ import {
   Sun,
 } from "lucide-react";
 
+interface HomeProps {
+  darkMode: boolean;
+  setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  isAuthenticated: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
 function Home({
   darkMode,
   setDarkMode,
   isAuthenticated,
   setIsAuthenticated,
-}) {
+}: HomeProps) {
 
   const navigate = useNavigate();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
-  const handleLogout = () => {
-
+const handleLogout = (): void => {
     localStorage.removeItem("isAuthenticated");
 
     setIsAuthenticated(false);
@@ -42,6 +48,19 @@ function Home({
     <div className="w-full min-h-screen bg-white dark:bg-[#070B14] overflow-hidden relative transition duration-300">
 
       {/* ================= BACKGROUND GLOW ================= */}
+
+      {/* ================= THEME TOGGLE ================= */}
+
+<button
+  onClick={() => setDarkMode(!darkMode)}
+  className="fixed top-6 right-6 z-50 w-12 h-12 rounded-2xl bg-white dark:bg-white/10 border border-gray-300 dark:border-white/10 flex items-center justify-center text-gray-900 dark:text-white backdrop-blur-xl shadow-lg transition duration-300"
+>
+  {darkMode ? (
+    <Sun size={20} />
+  ) : (
+    <Moon size={20} />
+  )}
+</button>
 
       <div className="absolute top-[-120px] left-[-120px] w-[350px] h-[350px] bg-purple-500/20 blur-[120px] rounded-full"></div>
 
