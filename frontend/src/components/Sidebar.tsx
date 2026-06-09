@@ -12,13 +12,23 @@ const Sidebar = () => {
 
   const menu = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Vendors", path: "/dashboard/vendors", icon: Users },
-    { name: "Products", path: "/dashboard/products", icon: Package },
+    { name: "Vendors", path: "/vendors", icon: Users },
+    { name: "Products", path: "/products", icon: Package },
   ];
 
   return (
-    <div className="h-screen w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10 p-4">
-      
+<div className="
+  w-full
+  lg:w-64
+  lg:h-screen
+  bg-white
+  dark:bg-black
+  border-r
+  border-gray-200
+  dark:border-white/10
+  p-4
+  relative
+">      
       {/* Title */}
       <h1 className="text-xl font-bold text-black dark:text-white mb-6">
         Admin Panel
@@ -48,7 +58,7 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout */}
-      <div className="absolute bottom-5 w-52">
+      <div className="mt-10 lg:absolute lg:bottom-5 w-52">
         <button className="flex items-center gap-3 text-red-500">
           <LogOut size={18} />
           Logout

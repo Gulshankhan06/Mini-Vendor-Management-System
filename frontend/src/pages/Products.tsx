@@ -191,16 +191,17 @@ function Products({ darkMode }: ProductsProps) {
   };
   return (
 
-    
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
+  <div className="flex"></div>
 
-  <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
+  <div className="flex">
 
-    {/* ============ LEFT SIDEBAR ============ */}
-    <div className="w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
+    {/* Desktop Sidebar */}
+    <div className="hidden lg:block w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
       <Sidebar />
     </div>
 
-    {/* ============ RIGHT MAIN CONTENT ============ */}
+    {/* Main Content */}
     <div className="flex-1 p-4 md:p-10 overflow-x-hidden">
       {/* ================= HEADER ================= */}
 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
@@ -673,6 +674,7 @@ function Products({ darkMode }: ProductsProps) {
 
       </div>
 
+    </div>
     </div>
     </div>
 

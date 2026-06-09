@@ -171,19 +171,26 @@ function Vendors({
   <div className="flex min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
 
   {/* LEFT SIDEBAR */}
-  <div className="w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
-    <Sidebar />
-  </div>
+  <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070B14]">
+  <div className="flex">
 
-  {/* RIGHT MAIN CONTENT */}
-  <div className="flex-1 p-4 md:p-10 overflow-x-hidden">
+    {/* Sidebar Desktop Only */}
+    <div className="hidden lg:block w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
+      <Sidebar />
+    </div>
+
+    {/* Content */}
+    <div className="flex-1 p-4 md:p-6 lg:p-10">
+
+  
+  
 
     {/* HEADER */}
     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-10">
 
       <div>
         <h1 className="text-3xl md:text-5xl font-bold text-gray-900 dark:text-white">
-          vendor Management
+          Vendor Management
         </h1>
 
         <p className="text-gray-600 dark:text-gray-400 mt-3 text-base md:text-lg">
@@ -383,7 +390,7 @@ function Vendors({
                   className="w-full md:w-auto bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20"
                 >
 
-                add vendor
+                Save vendor
 
                 </button>
 
@@ -521,6 +528,8 @@ function Vendors({
 
       </div>
 
+    </div>
+    </div>
     </div>
     </div>
   );
