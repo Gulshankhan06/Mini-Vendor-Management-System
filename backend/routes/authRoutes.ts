@@ -214,7 +214,7 @@ router.get(
       );
 
       return res.redirect(
-        `${process.env.FRONTEND_URL}/login-success?token=${token}`
+        `${process.env.FRONTEND_URL}/login?token=${token}`
       );
     } catch (err) {
       console.log(err);
