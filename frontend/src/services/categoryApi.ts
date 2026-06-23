@@ -18,12 +18,15 @@ export const createCategory = async (categoryData: {
   return response.data.data;
 };
 
+// 
+
 export const updateCategory = async (
   id: string,
   categoryData: {
-    name: string;
+    name?: string;
     description?: string;
-    parent: string | null;
+    parent?: string | null;
+    status?: "Active" | "Inactive";
   }
 ) => {
   const response = await api.put(
@@ -31,7 +34,7 @@ export const updateCategory = async (
     categoryData
   );
   return response.data.data;
-};
+}; 
 
 export const deleteCategory = async (
   id: string
