@@ -41,8 +41,15 @@ router.post("/register", async (req: Request, res: Response) => {
     });
     console.timeLog("REGISTER", "user created");
 
-    await sendVerificationEmail(email, emailOtp);
-    console.timeLog("REGISTER", "email sent");
+   try {
+  await sendVerificationEmail(email, emailOtp);
+  console.timeLog("REGISTER", "email sent");
+} catch (err) {
+  return res.status(500).json({
+    success: false,
+    message: "Failed to send OTP email",
+  });
+}
 
     return res.status(201).json({
       success: true,
