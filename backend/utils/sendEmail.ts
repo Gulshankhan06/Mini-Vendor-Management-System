@@ -8,17 +8,23 @@ export const sendVerificationEmail = async (
     console.log("🔥 EMAIL FUNCTION CALLED");
 
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
+      host: "smtp-relay.brevo.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
     });
 
-    await transporter.sendMail({
-      from: process.env.SMTP_USER,
+    // SMTP connection test
+    await transporter.verify();
+    console.log("✅ SMTP VERIFIED");
+
+    const info = await transporter.sendMail({
+      from: '"Mini Vendor Management" <gulshansaidkhan@gmail.com>',
       to: email,
       subject: "Email Verification OTP",
       html: `
@@ -32,6 +38,9 @@ export const sendVerificationEmail = async (
     });
 
     console.log("✅ EMAIL SENT SUCCESS");
+    console.log("📧 Message ID:", info.messageId);
+
+    return info;
   } catch (error) {
     console.error("❌ EMAIL ERROR:", error);
     throw error;
