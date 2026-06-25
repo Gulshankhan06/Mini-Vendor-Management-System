@@ -6,10 +6,14 @@ export const sendVerificationEmail = async (
 ) => {
   try {
     console.log("🔥 EMAIL FUNCTION CALLED");
+    console.log("SMTP_HOST =", process.env.SMTP_HOST);
+console.log("SMTP_PORT =", process.env.SMTP_PORT);
+console.log("SMTP_USER exists =", !!process.env.SMTP_USER);
+console.log("SMTP_PASS exists =", !!process.env.SMTP_PASS);
 
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
-      port: 465,
+      port: 587,
       secure: true,
       auth: {
         user: process.env.SMTP_USER,
