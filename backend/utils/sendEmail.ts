@@ -14,7 +14,7 @@ console.log("SMTP_PASS exists =", !!process.env.SMTP_PASS);
     const transporter = nodemailer.createTransport({
       host: "smtp-relay.brevo.com",
       port: 587,
-      secure: true,
+      secure: false,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -28,7 +28,7 @@ console.log("SMTP_PASS exists =", !!process.env.SMTP_PASS);
     console.log("✅ SMTP VERIFIED");
 
     const info = await transporter.sendMail({
-      from: '"Mini Vendor Management" <gulshansaidkhan@gmail.com>',
+      from: process.env.SENDER_EMAIL,
       to: email,
       subject: "Email Verification OTP",
       html: `
