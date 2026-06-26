@@ -20,14 +20,19 @@ function Chat({ darkMode }: Props) {
   const roomId = `admin_${vendorId}`;
 
   // ================= LOAD MESSAGES =================
-  const loadMessages = async () => {
-    const res = await getMessages(roomId);
-    setMessages(res.data);
-  };
+  useEffect(()=>{
 
-  useEffect(() => {
-    loadMessages();
-  }, [roomId]);
+    const load = async()=>{
+
+        const res = await getMessages(roomId);
+
+        setMessages(res.data);
+
+    }
+
+    load();
+
+},[roomId]);
 
   // ================= JOIN ROOM =================
   useEffect(() => {
@@ -58,11 +63,8 @@ function Chat({ darkMode }: Props) {
       message,
     };
 
-    // save in DB
-    const res = await sendMessage(msgData);
-
-    // realtime emit (IMPORTANT: send saved message)
-    socket.emit("send-message", res.data);
+  
+   
 
     setMessage("");
   };

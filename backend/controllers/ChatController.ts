@@ -3,44 +3,75 @@ import Chat from "../models/ChatModel";
 import Message from "../models/MessageModel";
 import { io } from "../server";
 
-/* GET CHATS */
+/* ================= GET CHATS ================= */
+
 export const getChats = async (req: Request, res: Response) => {
   try {
-    const chats = await Chat.find().sort({ updatedAt: -1 });
-    res.json(chats);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching chats" });
+    const chats = await Chat.find().sort({
+      updatedAt: -1,
+    });
+
+    return res.json(chats);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to fetch chats",
+    });
   }
 };
 
-/* GET MESSAGES */
-export const getMessages = async (req: Request, res: Response) => {
+/* ================= GET MESSAGES ================= */
+
+export const getMessages = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { roomId } = req.params;
 
-    const messages = await Message.find({ roomId }).sort({
+    const messages = await Message.find({
+      roomId,
+    }).sort({
       createdAt: 1,
     });
 
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ message: "Error fetching messages" });
+    return res.json(messages);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to fetch messages",
+    });
   }
 };
 
-/* SEND MESSAGE */
-export const sendMessage = async (req: Request, res: Response) => {
-  try {
-    const { senderId, receiverId, roomId, message } = req.body;
+/* ================= SEND MESSAGE ================= */
 
-    const newMsg = await Message.create({
+export const sendMessage = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const {
+      senderId,
+      receiverId,
+      roomId,
+      message,
+    } = req.body;
+
+    if (!message.trim()) {
+      return res.status(400).json({
+        message: "Message is required",
+      });
+    }
+
+    const newMessage = await Message.create({
       senderId,
       receiverId,
       roomId,
       message,
     });
 
-    let chat = await Chat.findOne({ roomId });
+    let chat = await Chat.findOne({
+      roomId,
+    });
 
     if (!chat) {
       chat = await Chat.create({
@@ -54,10 +85,16 @@ export const sendMessage = async (req: Request, res: Response) => {
       await chat.save();
     }
 
-    io.to(roomId).emit("receive-message", newMsg);
+    // ✅ ONLY ONE EMIT
+    io.to(roomId).emit(
+      "receive-message",
+      newMessage
+    );
 
-    res.status(201).json(newMsg);
-  } catch (err) {
-    res.status(500).json({ message: "Error sending message" });
+    return res.status(201).json(newMessage);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error sending message",
+    });
   }
 };

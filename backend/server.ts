@@ -34,22 +34,31 @@ export const io = new Server(httpServer, {
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
 
-  // join room
-  socket.on("join-room", (roomId: string) => {
-    socket.join(roomId);
-    console.log("Joined room:", roomId);
-  });
+    console.log("Connected:", socket.id);
 
-  // real-time message
-  socket.on("send-message", (data) => {
-    io.to(data.roomId).emit("receive-message", data.message);
-  });
+    socket.on(
+        "join-room",
+        (roomId: string) => {
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
-  });
+            socket.join(roomId);
+
+            console.log(
+                `Socket joined ${roomId}`
+            );
+
+        }
+    );
+
+    socket.on("disconnect", () => {
+
+        console.log(
+            "Disconnected:",
+            socket.id
+        );
+
+    });
+
 });
 
 /* ================= ROUTES ================= */

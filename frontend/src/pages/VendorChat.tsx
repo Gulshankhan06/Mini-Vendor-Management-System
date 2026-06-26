@@ -52,11 +52,7 @@ function VendorChat() {
       message,
     };
 
-    // 1. Save in DB
-    const res = await sendMessage(msgData);
-
-    // 2. Real-time emit (IMPORTANT FIX)
-    socket.emit("send-message", res.data);
+    
 
     setMessage("");
   };

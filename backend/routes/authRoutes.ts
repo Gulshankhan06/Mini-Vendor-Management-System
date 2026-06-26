@@ -145,25 +145,34 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     // resend OTP if not verified
-    if (!user.isEmailVerified) {
-      const otp = generateOTP();
+    // if (!user.isEmailVerified) {
+    //   const otp = generateOTP();
 
-      user.emailOtp = otp;
-      user.emailOtpExpires = new Date(Date.now() + 5 * 60 * 1000);
+    //   user.emailOtp = otp;
+    //   user.emailOtpExpires = new Date(Date.now() + 5 * 60 * 1000);
 
-      await user.save();
-         console.timeLog("LOGIN", "user saved");
-      await sendVerificationEmail(user.email, otp);
-        console.timeLog("LOGIN", "email sent");
+    //   await user.save();
+    //      console.timeLog("LOGIN", "user saved");
+    //   await sendVerificationEmail(user.email, otp);
+    //     console.timeLog("LOGIN", "email sent");
 
-    console.timeEnd("LOGIN");
-      return res.json({
-        success: false,
-        emailVerified: false,
-        message: "OTP sent to email",
-        email: user.email,
-      });
-    }
+    // console.timeEnd("LOGIN");
+    //   return res.json({
+    //     success: false,
+    //     emailVerified: false,
+    //     message: "OTP sent to email",
+    //     email: user.email,
+    //   });
+    // }
+    // resend OTP if not verified
+if (!user.isEmailVerified) {
+  return res.json({
+    success: false,
+    emailVerified: false,
+    email: user.email,
+    message: "OTP generation skipped for testing",
+  });
+}
 
     const token = jwt.sign(
       { id: user._id },

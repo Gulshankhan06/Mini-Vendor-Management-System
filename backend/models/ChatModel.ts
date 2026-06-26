@@ -9,13 +9,26 @@ export interface IChat extends Document {
 
 const chatSchema = new Schema(
   {
-    roomId: { type: String, required: true },
+    roomId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
 
-    vendorId: { type: String, required: true },
+    vendorId: {
+      type: String,
+      required: true,
+    },
 
-    vendorName: { type: String, required: true },
+    vendorName: {
+      type: String,
+      required: true,
+    },
 
-    lastMessage: { type: String, default: "" },
+    lastMessage: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
