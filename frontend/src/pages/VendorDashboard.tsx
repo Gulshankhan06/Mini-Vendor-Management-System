@@ -87,11 +87,11 @@ function VendorDashboard({ darkMode }: Props) {
               </Link>
 
               <Link
-                to="/vendor-products"
+                to="/vendor-profile"
                 className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 px-5 py-4 rounded-2xl"
               >
                 <Package size={22} />
-                <span className="text-[17px] font-medium">Products</span>
+                <span className="text-[17px] font-medium">Profile</span>
               </Link>
 
               <Link

@@ -29,6 +29,7 @@ const Categories = ({ darkMode }: CategoriesProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
+  const [search, setSearch] = useState("");
 
   const fetchCategories = async () => {
     try {
@@ -60,6 +61,23 @@ const Categories = ({ darkMode }: CategoriesProps) => {
   };
 
   const categoryTree = useMemo(() => buildTree(), [categories]);
+  const filterTree = (nodes: Category[]): Category[] => {
+  return nodes
+    .map((node) => ({
+      ...node,
+      children: filterTree(node.children || []),
+    }))
+    .filter(
+      (node) =>
+        node.name.toLowerCase().includes(search.toLowerCase()) ||
+        (node.children && node.children.length > 0)
+    );
+};
+
+const filteredTree = useMemo(() => {
+  if (!search.trim()) return categoryTree;
+  return filterTree(categoryTree);
+}, [categoryTree, search]);
 
   const handleSave = async (data: { name: string; parent: string | null }) => {
     try {
@@ -143,10 +161,23 @@ const Categories = ({ darkMode }: CategoriesProps) => {
             <h2 className="text-xl font-semibold">Category Tree</h2>
           </div>
 
-          {categoryTree.length === 0 ? (
+<div className="mb-6">
+  <input
+    type="text"
+    placeholder="Search category..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className={`w-full md:w-80 px-4 py-2 rounded-xl border transition-all duration-200 outline-none ${
+      darkMode
+        ? "bg-[#0F172A] border-white/10 text-white placeholder-gray-400 focus:border-purple-500"
+        : "bg-white border-gray-300 text-black placeholder-gray-500 focus:border-purple-500"
+    }`}
+  />
+</div>
+          {filteredTree.length === 0 ? (
             <p className="text-gray-500">No categories found</p>
           ) : (
-            categoryTree.map((cat) => (
+            filteredTree.map((cat) => (
               <CategoryNode
                 key={cat._id}
                 category={cat}

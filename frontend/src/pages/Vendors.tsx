@@ -49,6 +49,7 @@ function Vendors({
   const [vendors, setVendors] = useState<Vendor[]>([]);
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     vendorName: "",
@@ -164,6 +165,14 @@ function Vendors({
       console.log(error);
     }
   };
+
+  const filteredVendors = vendors.filter((vendor) =>
+  vendor.vendorName.toLowerCase().includes(search.toLowerCase()) ||
+  vendor.email.toLowerCase().includes(search.toLowerCase()) ||
+  vendor.phone.toLowerCase().includes(search.toLowerCase()) ||
+  vendor.address.toLowerCase().includes(search.toLowerCase()) ||
+  vendor.businessId.toLowerCase().includes(search.toLowerCase())
+);
 
   return (
 
@@ -408,6 +417,19 @@ function Vendors({
       <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
 
         {/* ================= SCROLL CONTAINER ================= */}
+        <div className="p-6 border-b border-gray-200 dark:border-white/10">
+  <input
+    type="text"
+    placeholder="Search vendors..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className={`w-full md:w-80 px-4 py-3 rounded-xl border outline-none transition-all ${
+      darkMode
+        ? "bg-[#0F172A] border-white/10 text-white placeholder-gray-400 focus:border-purple-500"
+        : "bg-white border-gray-300 text-black placeholder-gray-500 focus:border-purple-500"
+    }`}
+  />
+</div>
 
         <div className="overflow-x-auto">
 
@@ -446,10 +468,9 @@ function Vendors({
             {/* ================= TABLE BODY ================= */}
 
             {
-              vendors.length > 0 ? (
-
-                vendors.map((vendor, index) => (
-
+            
+filteredVendors.length > 0 ? (
+  filteredVendors.map((vendor, index) => (
                   <div
                     key={vendor._id}
                     className="grid grid-cols-6 px-6 py-5 border-b border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition duration-300 items-center"
@@ -513,7 +534,7 @@ function Vendors({
 
                   <p className="text-gray-500 text-lg">
 
-                    No vendors added yet
+                    No vendors found.
 
                   </p>
 

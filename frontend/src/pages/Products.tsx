@@ -28,6 +28,7 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const [formData, setFormData] = useState<FormData>({
     productName: "",
@@ -130,6 +131,16 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
       console.log(error);
     }
   };
+  const filteredProducts = products.filter((product) => {
+  const categoryName = getCategoryName(product.category);
+
+  return (
+    product.productName.toLowerCase().includes(search.toLowerCase()) ||
+    categoryName.toLowerCase().includes(search.toLowerCase()) ||
+    product.price.toString().includes(search) ||
+    product.quantity.toString().includes(search)
+  );
+});
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] flex">
@@ -226,7 +237,19 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
 
         {/* TABLE CARD (VENDOR STYLE) */}
         <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
-
+<div className="p-6 border-b border-gray-200 dark:border-white/10">
+  <input
+    type="text"
+    placeholder="Search products..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    className={`w-full md:w-80 px-4 py-3 rounded-xl border outline-none transition-all ${
+      darkMode
+        ? "bg-[#0F172A] border-white/10 text-white placeholder-gray-400 focus:border-purple-500"
+        : "bg-white border-gray-300 text-black placeholder-gray-500 focus:border-purple-500"
+    }`}
+  />
+</div>
           {/* HEADER ROW */}
           <div className="grid grid-cols-5 bg-purple-500/20 px-6 py-5 font-semibold text-gray-900 dark:text-white">
             <p>Name</p>
@@ -236,35 +259,41 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
             <p className="text-center">Actions</p>
           </div>
 
-          {/* ROWS */}
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="grid grid-cols-5 px-6 py-5 border-b border-gray-200 dark:border-white/5 items-center hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
-            >
-              <p>{product.productName}</p>
-              <p>{getCategoryName(product.category)}</p>
-              <p>₹ {product.price}</p>
-              <p>{product.quantity}</p>
+          
+       {/* ROWS */}
+{filteredProducts.length > 0 ? (
+  filteredProducts.map((product) => (
+    <div
+      key={product._id}
+      className="grid grid-cols-5 px-6 py-5 border-b border-gray-200 dark:border-white/5 items-center hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
+    >
+      <p>{product.productName}</p>
+      <p>{getCategoryName(product.category)}</p>
+      <p>₹ {product.price}</p>
+      <p>{product.quantity}</p>
 
-              <div className="flex justify-center gap-3">
-                <button
-                  onClick={() => handleEdit(product)}
-                  className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center"
-                >
-                  <Pencil size={18} />
-                </button>
+      <div className="flex justify-center gap-3">
+        <button
+          onClick={() => handleEdit(product)}
+          className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center"
+        >
+          <Pencil size={18} />
+        </button>
 
-                <button
-                  onClick={() => handleDelete(product._id)}
-                  className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </div>
-          ))}
-
+        <button
+          onClick={() => handleDelete(product._id)}
+          className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  ))
+) : (
+  <div className="py-10 text-center text-gray-500 dark:text-gray-400">
+    No products found.
+  </div>
+)}
         </div>
 
       </div>
