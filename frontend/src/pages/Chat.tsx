@@ -41,7 +41,7 @@ useEffect(() => {
 
   socket.emit("join-room", roomId);
 
-  API.get(`/chat/messages/${roomId}`).then((res: any) => {
+  API.get(`/chat/${roomId}`).then((res: any) => {
     console.log("Full Response:", res);
     console.log("res.data:", res.data);
 

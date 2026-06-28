@@ -22,7 +22,7 @@ const VendorChat = ({ darkMode }: VendorChatProps) => {
   useEffect(() => {
   socket.emit("join-room", roomId);
 
-  API.get(`/chat/messages/${roomId}`)
+  API.get(`/chat/${roomId}`)
     .then((res: any) => {
       console.log("Vendor Full Response:", res);
       console.log("Vendor Response Data:", res.data);
