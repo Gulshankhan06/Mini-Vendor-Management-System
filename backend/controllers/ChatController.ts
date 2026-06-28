@@ -1,100 +1,80 @@
 import { Request, Response } from "express";
-import Chat from "../models/ChatModel";
 import Message from "../models/MessageModel";
-import { io } from "../server";
 
-/* ================= GET CHATS ================= */
-
-export const getChats = async (req: Request, res: Response) => {
+/* ================= SEND MESSAGE ================= */
+export const sendMessage = async (req: Request, res: Response) => {
   try {
-    const chats = await Chat.find().sort({
-      updatedAt: -1,
+    const {
+      senderId,
+      senderName,
+      receiverId,
+      receiverName,
+      roomId,
+      message,
+    } = req.body;
+
+    const newMessage = new Message({
+      senderId,
+      senderName,
+      receiverId,
+      receiverName,
+      roomId,
+      message,
     });
 
-    return res.json(chats);
+    await newMessage.save();
+
+    return res.status(201).json({
+      success: true,
+      data: newMessage,
+    });
   } catch (error) {
     return res.status(500).json({
-      message: "Failed to fetch chats",
+      success: false,
+      message: "Error sending message",
+      error,
     });
   }
 };
 
 /* ================= GET MESSAGES ================= */
-
-export const getMessages = async (
-  req: Request,
-  res: Response
-) => {
+export const getMessages = async (req: Request, res: Response) => {
   try {
     const { roomId } = req.params;
 
-    const messages = await Message.find({
-      roomId,
-    }).sort({
+    const messages = await Message.find({ roomId }).sort({
       createdAt: 1,
     });
 
-    return res.json(messages);
+    return res.status(200).json({
+      success: true,
+      data: messages,
+    });
   } catch (error) {
     return res.status(500).json({
-      message: "Failed to fetch messages",
+      success: false,
+      message: "Error fetching messages",
+      error,
     });
   }
 };
 
-/* ================= SEND MESSAGE ================= */
-
-export const sendMessage = async (
-  req: Request,
-  res: Response
-) => {
+/* ================= DELETE MESSAGE ================= */
+export const deleteMessage = async (req: Request, res: Response) => {
   try {
-    const {
-      senderId,
-      receiverId,
-      roomId,
-      message,
-    } = req.body;
+    const { id } = req.params;
 
-    if (!message.trim()) {
-      return res.status(400).json({
-        message: "Message is required",
-      });
-    }
+    await Message.findByIdAndDelete(id);
 
-    const newMessage = await Message.create({
-      senderId,
-      receiverId,
-      roomId,
-      message,
+    return res.status(200).json({
+      success: true,
+      message: "Message deleted",
     });
-
-    let chat = await Chat.findOne({
-      roomId,
-    });
-
-    if (!chat) {
-      chat = await Chat.create({
-        roomId,
-        vendorId: receiverId,
-        vendorName: "Vendor",
-        lastMessage: message,
-      });
-    } else {
-      chat.lastMessage = message;
-      await chat.save();
-    }
-
-    // ✅ ONLY ONE EMIT
-    io.to(roomId).emit(
-      "receive-message",
-      newMessage
-    );
-
-    return res.status(201).json(newMessage);
   } catch (error) {
     return res.status(500).json({
-      message: "Error sending message",
+      success: false,
+      message: "Error deleting message",
+      error,
     });
   }
 };

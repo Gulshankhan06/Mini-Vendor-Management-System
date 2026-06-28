@@ -2,8 +2,13 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMessage extends Document {
   senderId: string;
+  senderName: string;
+
   receiverId: string;
+  receiverName: string;
+
   roomId: string;
+
   message: string;
 }
 
@@ -14,7 +19,17 @@ const messageSchema = new Schema(
       required: true,
     },
 
+    senderName: {
+      type: String,
+      required: true,
+    },
+
     receiverId: {
+      type: String,
+      required: true,
+    },
+
+    receiverName: {
       type: String,
       required: true,
     },
@@ -27,12 +42,13 @@ const messageSchema = new Schema(
     message: {
       type: String,
       required: true,
-      trim: true,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // createdAt + updatedAt auto add hoga
   }
 );
 
-export default mongoose.model<IMessage>("Message", messageSchema);
+const Message = mongoose.model<IMessage>("Message", messageSchema);
+
+export default Message;

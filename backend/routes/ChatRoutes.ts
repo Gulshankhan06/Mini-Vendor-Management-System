@@ -1,23 +1,19 @@
-import { Router } from "express";
-
+import express from "express";
 import {
-  getChats,
-  getMessages,
   sendMessage,
+  getMessages,
+  deleteMessage,
 } from "../controllers/ChatController";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getChats);
+/* SEND MESSAGE */
+router.post("/send", sendMessage);
 
-router.get(
-  "/messages/:roomId",
-  getMessages
-);
+/* GET MESSAGES */
+router.get("/:roomId", getMessages);
 
-router.post(
-  "/send",
-  sendMessage
-);
+/* DELETE MESSAGE */
+router.delete("/:id", deleteMessage);
 
 export default router;

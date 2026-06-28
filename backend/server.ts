@@ -7,6 +7,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 
 import connectDB from "./config/db";
+import setupSocket from "./socket/socket";
 
 import vendorRoutes from "./routes/vendorRoutes";
 import authRoutes from "./routes/authRoutes";
@@ -19,13 +20,14 @@ import passport from "./config/passport";
 connectDB();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(passport.initialize());
 
 const httpServer = createServer(app);
 
-/* ================= SOCKET ================= */
+// Socket Server
 export const io = new Server(httpServer, {
   cors: {
     origin: "*",
@@ -33,35 +35,10 @@ export const io = new Server(httpServer, {
   },
 });
 
-io.on("connection", (socket) => {
+// Socket Setup
+setupSocket(io);
 
-    console.log("Connected:", socket.id);
-
-    socket.on(
-        "join-room",
-        (roomId: string) => {
-
-            socket.join(roomId);
-
-            console.log(
-                `Socket joined ${roomId}`
-            );
-
-        }
-    );
-
-    socket.on("disconnect", () => {
-
-        console.log(
-            "Disconnected:",
-            socket.id
-        );
-
-    });
-
-});
-
-/* ================= ROUTES ================= */
+// Routes
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/vendors", vendorRoutes);
@@ -75,5 +52,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 httpServer.listen(PORT, () => {
-  console.log("Server running on port", PORT);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

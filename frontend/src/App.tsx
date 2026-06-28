@@ -15,6 +15,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import DataDeletion from "./pages/DataDeletion";
 import LoginSuccess from "./pages/LoginSuccess";
 
+import SplitChatDemo from "./components/SplitChatDemo";
+
+
 // ================= VENDOR PAGES =================
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorOrders from "./pages/Order";
@@ -121,6 +124,7 @@ function App() {
           }
         />
 
+
         {/* ================= ADMIN MODULES ================= */}
         <Route
           path="/vendors"
@@ -157,17 +161,28 @@ function App() {
             )
           }
         />
+<Route
+  path="/chat"
+  element={
+    isAuthenticated ? (
+      <Chat />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
 
-        <Route
-          path="/chat"
-          element={
-            isAuthenticated ? (
-              <Chat darkMode={darkMode} />
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
+<Route
+  path="/split-chat"
+  element={
+    isAuthenticated ? (
+      <SplitChatDemo darkMode={darkMode} />
+    ) : (
+      <Navigate to="/login" />
+    )
+  }
+/>
+    
 
         {/* ================= VENDOR ================= */}
         <Route
