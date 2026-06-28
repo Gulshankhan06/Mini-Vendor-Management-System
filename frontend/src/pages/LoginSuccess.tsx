@@ -19,8 +19,8 @@ function LoginSuccess({ setIsAuthenticated }: any) {
       // 3. Update React state
       setIsAuthenticated(true);
 
-      // 4. Redirect dashboard
-      navigate("/dashboard", { replace: true });
+      // 4. Redirect to home page
+      navigate("/", { replace: true });
     } else {
       // agar token nahi mila
       navigate("/login");
