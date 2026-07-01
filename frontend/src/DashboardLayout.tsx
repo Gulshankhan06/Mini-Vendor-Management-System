@@ -6,7 +6,7 @@ const DashboardLayout = ({ children }: any) => {
 
       {/* LEFT SIDEBAR */}
       <div className="w-64">
-        <Sidebar />
+      <Sidebar /> 
       </div>
 
       {/* RIGHT CONTENT */}

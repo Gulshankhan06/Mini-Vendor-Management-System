@@ -112,7 +112,7 @@ export const getCategories = async (req: Request, res: Response) => {
 };
 // ==========================
 // UPDATE CATEGORY
-// ==========================
+ // ==========================
 export const updateCategory = async (
   req: Request,
   res: Response
