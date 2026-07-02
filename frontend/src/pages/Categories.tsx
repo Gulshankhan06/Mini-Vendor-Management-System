@@ -256,19 +256,24 @@ const CategoryNode = ({
               {category.name}
             </p>
 
-            <div className="flex items-center gap-4 text-sm mt-1 text-gray-500 dark:text-gray-400">
-              <span>Products: {category.totalProducts || 0}</span>
+           <div className="flex items-center gap-4 text-sm mt-1 text-gray-500 dark:text-gray-400">
 
-              <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  category.status === "Active"
-                    ? "bg-green-500/20 text-green-400"
-                    : "bg-red-500/20 text-red-400"
-                }`}
-              >
-                {category.status}
-              </span>
-            </div>
+  {/* Sirf Sub Category me Product Count dikhana */}
+  {category.parent && (
+    <span>Products: {category.totalProducts || 0}</span>
+  )}
+
+  <span
+    className={`px-3 py-1 rounded-full text-xs font-semibold ${
+      category.status === "Active"
+        ? "bg-green-500/20 text-green-400"
+        : "bg-red-500/20 text-red-400"
+    }`}
+  >
+    {category.status}
+  </span>
+
+</div>
           </div>
         </div>
 

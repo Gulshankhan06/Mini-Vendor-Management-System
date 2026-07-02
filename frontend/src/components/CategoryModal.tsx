@@ -7,7 +7,7 @@ interface CategoryModalProps {
   onClose: () => void;
   onSave: (data: {
     name: string;
-    description: string;
+    // description: string;
     parent: string | null;
     isActive: boolean;
   }) => void;
@@ -23,7 +23,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   editCategory,
 }) => {
   const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  // const [description, setDescription] = useState("");
   const [parent, setParent] = useState<string | null>(null);
   const [isActive, setIsActive] = useState(true);
 
@@ -31,12 +31,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   useEffect(() => {
     if (editCategory) {
       setName(editCategory.name || "");
-      setDescription(editCategory.description || "");
+      // setDescription(editCategory.description || "");
       setParent(editCategory.parent || null);
       setIsActive(editCategory.status === "Active");
     } else {
       setName("");
-      setDescription("");
+    //  setDescription(""); 
       setParent(null);
       setIsActive(true);
     }
@@ -52,7 +52,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
     onSave({
       name: name.trim(),
-      description: description.trim(),
+      // description: description.trim(),
       parent,
       isActive,
     });
@@ -96,7 +96,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             />
           </div>
 
-          {/* DESCRIPTION */}
+          {/* DESCRIPTION
           <div>
             <label className="text-sm font-medium">Description</label>
             <textarea
@@ -106,7 +106,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               placeholder="Enter description"
               className="w-full border rounded-lg px-3 py-2 mt-1"
             />
-          </div>
+          </div> */}
 
           {/* PARENT CATEGORY */}
           <div>
@@ -149,14 +149,14 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
           </div>
 
           {/* PRODUCT COUNT (DISPLAY ONLY) */}
-          <div className="bg-gray-100 p-3 rounded-lg">
+          {/* <div className="bg-gray-100 p-3 rounded-lg">
             <span className="text-sm text-gray-600">
               Total Products:
             </span>
             <span className="ml-2 font-semibold">
               {editCategory?.totalProducts || 0}
             </span>
-          </div>
+          </div> */}
 
           {/* BUTTONS */}
           <div className="flex justify-end gap-3">
