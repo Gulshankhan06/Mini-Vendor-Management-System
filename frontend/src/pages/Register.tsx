@@ -9,7 +9,8 @@ function Registration({ darkMode }: RegisterProps) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    name: "",
+    username: "",
+     name: "",
     email: "",
     phone: "",
     password: "",
@@ -28,7 +29,7 @@ function Registration({ darkMode }: RegisterProps) {
   };
 
   const validateForm = () => {
-    if (!form.name || !form.email || !form.password) {
+    if (!form.username || !form.name || !form.email || !form.password) {
       setMessage("All required fields must be filled");
       return false;
     }
@@ -152,6 +153,19 @@ function Registration({ darkMode }: RegisterProps) {
           onSubmit={handleRegister}
           className="space-y-5"
         >
+          <input
+  type="text"
+  name="username"
+  value={form.username}
+  onChange={handleChange}
+  placeholder="Username"
+  required
+  className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
+    darkMode
+      ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
+      : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
+  }`}
+/>
           <input
             name="name"
             value={form.name}

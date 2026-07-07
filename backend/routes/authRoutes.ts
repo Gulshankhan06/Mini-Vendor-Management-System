@@ -16,12 +16,28 @@ router.post("/register", async (req: Request, res: Response) => {
   console.time("REGISTER");
 
   try {
-    const { name, email, phone, password, role } = req.body;
+    const {username, name, email, phone, password, role } = req.body;
+const existingUsername = await User.findOne({
+  username: username.toLowerCase(),
+});
 
-    const existing = await User.findOne({ email });
-    if (existing) {
-      return res.status(400).json({ message: "User already exists" });
-    }
+if (existingUsername) {
+  return res.status(400).json({
+    success: false,
+    message: "Username already exists",
+  });
+}
+
+const existingEmail = await User.findOne({ email });
+
+if (existingEmail) {
+  return res.status(400).json({
+    success: false,
+    message: "Email already exists",
+  });
+}
+    
+    
 
     const hashed = await bcrypt.hash(password, 10);
     console.timeLog("REGISTER", "password hashed");
@@ -29,6 +45,7 @@ router.post("/register", async (req: Request, res: Response) => {
     const emailOtp = generateOTP();
 
     const user = await User.create({
+       username: username.toLowerCase(),
       name,
       email,
       phone,
@@ -104,6 +121,7 @@ router.post("/verify-email-otp", async (req: Request, res: Response) => {
       token,
       user: {
         _id: user._id,
+        username: user.username,
         email: user.email,
         role: user.role,
         name: user.name,
@@ -169,6 +187,7 @@ if (!user.isEmailVerified) {
       token,
       user: {
         _id: user._id,
+         username: user.username,
         email: user.email,
         role: user.role,
         name: user.name,

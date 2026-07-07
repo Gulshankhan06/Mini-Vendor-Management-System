@@ -18,12 +18,22 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (!user) {
-          user = await User.create({
-            name: profile.displayName,
-            email,
-            isEmailVerified: true,
-            provider: "google",
-          });
+        
+let username = email.split("@")[0].toLowerCase();
+
+const existingUsername = await User.findOne({ username });
+
+if (existingUsername) {
+  username = `${username}${Date.now()}`;
+}
+
+user = await User.create({
+  username,
+  name: profile.displayName,
+  email,
+  isEmailVerified: true,
+  provider: "google",
+});
         }
 
         return done(null, user);
