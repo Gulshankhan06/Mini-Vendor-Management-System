@@ -14,8 +14,7 @@ export interface IUser extends Document {
 
   isEmailVerified: boolean;
 
-  emailOtp?: string | null;
-  emailOtpExpires?: Date | null;
+  
 }
 
 const userSchema: Schema<IUser> = new Schema(
@@ -50,8 +49,7 @@ const userSchema: Schema<IUser> = new Schema(
 
     isEmailVerified: { type: Boolean, default: false },
 
-    emailOtp: { type: String, default: null },
-    emailOtpExpires: { type: Date, default: null },
+   
   },
   { timestamps: true }
 );

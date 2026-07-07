@@ -18,6 +18,13 @@ function Registration({ darkMode }: RegisterProps) {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [otp, setOtp] = useState("");
+
+const [otpSent, setOtpSent] = useState(false);
+
+const [emailVerified, setEmailVerified] = useState(false);
+
+const [otpLoading, setOtpLoading] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -43,6 +50,80 @@ function Registration({ darkMode }: RegisterProps) {
 
     return true;
   };
+  const handleSendOtp = async () => {
+  if (!form.email) {
+    setMessage("Please enter email first");
+    return;
+  }
+
+  setOtpLoading(true);
+
+  try {
+    const res = await fetch(
+      "https://mini-vendor-management-system.onrender.com/api/auth/send-email-otp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(data.message);
+      setOtpLoading(false);
+      return;
+    }
+
+    setOtpSent(true);
+    setMessage("OTP sent successfully");
+  } catch (err) {
+    console.log(err);
+    setMessage("Server Error");
+  }
+
+  setOtpLoading(false);
+};
+const handleVerifyOtp = async () => {
+  if (!otp) {
+    setMessage("Enter OTP");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      "https://mini-vendor-management-system.onrender.com/api/auth/verify-email-otp",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          otp,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setMessage(data.message);
+      return;
+    }
+
+    setEmailVerified(true);
+    setMessage("Email verified successfully");
+  } catch (err) {
+    console.log(err);
+    setMessage("Server Error");
+  }
+};
 
   const handleRegister = async (
     e: React.FormEvent
@@ -75,18 +156,12 @@ function Registration({ darkMode }: RegisterProps) {
         setLoading(false);
         return;
       }
+setMessage("Registration successful");
 
-      setMessage(
-        "OTP sent to your email. Please verify."
-      );
-
-      setTimeout(() => {
-        navigate("/verify-email", {
-          state: {
-            email: form.email,
-          },
-        });
-      }, 1000);
+setTimeout(() => {
+  navigate("/login");
+}, 1000);
+      
     } catch (err) {
       console.log(err);
       setMessage(
@@ -179,19 +254,62 @@ function Registration({ darkMode }: RegisterProps) {
             }`}
           />
 
-          <input
-            type="email"
-            name="email"
-            value={form.email}
-            onChange={handleChange}
-            placeholder="Email Address"
-            required
-            className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
-              darkMode
-                ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
-                : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
-            }`}
-          />
+          <div className="flex gap-2">
+  <input
+    type="email"
+    name="email"
+    value={form.email}
+    onChange={handleChange}
+    placeholder="Email Address"
+    required
+    className={`flex-1 h-14 px-4 rounded-xl border outline-none ${
+      darkMode
+        ? "bg-[#111827] text-white border-gray-700"
+        : "bg-gray-50 text-gray-900 border-gray-300"
+    }`}
+  />
+
+  <button
+    type="button"
+    onClick={handleSendOtp}
+    disabled={otpLoading || emailVerified}
+    className="px-4 rounded-xl bg-blue-600 text-white"
+  >
+    {emailVerified
+      ? "Verified"
+      : otpLoading
+      ? "Sending..."
+      : "Verify"}
+  </button>
+</div>
+{otpSent && !emailVerified && (
+  <div className="flex gap-2">
+    <input
+      type="text"
+      value={otp}
+      onChange={(e) => setOtp(e.target.value)}
+      placeholder="Enter OTP"
+      className={`flex-1 h-14 px-4 rounded-xl border ${
+        darkMode
+          ? "bg-[#111827] text-white border-gray-700"
+          : "bg-gray-50 text-gray-900 border-gray-300"
+      }`}
+    />
+
+    <button
+      type="button"
+      onClick={handleVerifyOtp}
+      className="px-4 rounded-xl bg-green-600 text-white"
+    >
+      Verify OTP
+    </button>
+  </div>
+)}
+{emailVerified && (
+  <p className="text-green-500 font-medium">
+    ✅ Email Verified
+  </p>
+)}
 
           <input
             name="phone"
@@ -221,7 +339,7 @@ function Registration({ darkMode }: RegisterProps) {
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !emailVerified}
             className="w-full h-14 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all disabled:opacity-50"
           >
             {loading
