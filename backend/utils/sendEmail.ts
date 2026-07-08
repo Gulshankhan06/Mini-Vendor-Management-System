@@ -8,6 +8,7 @@ export const sendVerificationEmail = async (
     console.log("🔥 EMAIL FUNCTION CALLED");
 
     const transporter = nodemailer.createTransport({
+     
       host: "smtp.gmail.com",
       port: 465,
       secure: true, // Port 465 ke liye true
@@ -16,6 +17,13 @@ export const sendVerificationEmail = async (
         pass: process.env.SMTP_PASS,
       },
     });
+    console.log("Before verify");
+
+await transporter.verify();
+
+console.log("SMTP VERIFIED");
+
+console.log("Before sendMail");
 
     const info = await transporter.sendMail({
       from: process.env.SMTP_USER,

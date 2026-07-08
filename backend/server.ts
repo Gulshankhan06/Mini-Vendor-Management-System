@@ -16,8 +16,16 @@ import categoryRoutes from "./routes/CategoryRoutes";
 import chatRoutes from "./routes/ChatRoutes";
 
 import passport from "./config/passport";
+import dns from "dns";
 
 connectDB();
+dns.lookup("smtp.gmail.com", (err, address, family) => {
+  if (err) {
+    console.log("❌ DNS Error:", err);
+  } else {
+    console.log("✅ DNS:", address, family);
+  }
+});
 
 const app = express();
 
