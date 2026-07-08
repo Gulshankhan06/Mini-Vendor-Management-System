@@ -8,21 +8,17 @@ export const sendVerificationEmail = async (
     console.log("🔥 EMAIL FUNCTION CALLED");
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true, // Port 465 ke liye true
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
     });
 
-    console.log(process.env.SMTP_USER);
-    console.log(process.env.SMTP_PASS ? "PASS FOUND" : "PASS MISSING");
-
-    await transporter.verify();
-    console.log("✅ SMTP Connected Successfully");
-
     const info = await transporter.sendMail({
-      from: process.env.SENDER_EMAIL,
+      from: process.env.SMTP_USER,
       to: email,
       subject: "Email Verification OTP",
       html: `
@@ -35,12 +31,10 @@ export const sendVerificationEmail = async (
       `,
     });
 
-    console.log("✅ EMAIL SENT SUCCESS");
-    console.log("📧 Message ID:", info.messageId);
-
+    console.log("EMAIL SENT", info.messageId);
     return info;
-  } catch (error) {
-    console.error("❌ EMAIL ERROR:", error);
-    throw error;
+  } catch (err) {
+    console.error("EMAIL ERROR:", err);
+    throw err;
   }
 };
