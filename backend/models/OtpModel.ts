@@ -9,6 +9,15 @@ export interface IOtp extends Document {
   otp: string;
   expiresAt: Date;
   verified: boolean;
+
+  userData: {
+    username: string;
+    name: string;
+    email: string;
+    phone: string;
+    password: string;
+    role: "admin" | "vendor";
+  };
 }
 
 const otpSchema = new Schema<IOtp>(
@@ -33,6 +42,38 @@ const otpSchema = new Schema<IOtp>(
     verified: {
       type: Boolean,
       default: false,
+    },
+
+    userData: {
+      username: {
+        type: String,
+        required: true,
+      },
+
+      name: {
+        type: String,
+        required: true,
+      },
+
+      email: {
+        type: String,
+        required: true,
+      },
+
+      phone: {
+        type: String,
+        default: "",
+      },
+
+      password: {
+        type: String,
+        required: true,
+      },
+
+      role: {
+        type: String,
+        default: "vendor",
+      },
     },
   },
   {

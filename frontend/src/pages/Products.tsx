@@ -3,6 +3,7 @@ import API from "../api/axios";
 import React, { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import Sidebar from "../components/Sidebar";
+import { useNavigate } from "react-router-dom";
 
 interface Product {
   _id: string;
@@ -10,6 +11,7 @@ interface Product {
   category: any;
   price: string;
   quantity: string;
+    image: string;
 }
 
 interface FormData {
@@ -21,14 +23,23 @@ interface FormData {
 
 interface ProductsProps {
   darkMode: boolean;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
-function Products({ darkMode }: Readonly<ProductsProps>) {
+function Products({
+  darkMode,
+  setIsAuthenticated,
+}: Readonly<ProductsProps>) {
+  const navigate = useNavigate();
   const [showForm, setShowForm] = useState<boolean>(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [editId, setEditId] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+const [preview, setPreview] = useState("");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+const limit = 5;
 
   const [formData, setFormData] = useState<FormData>({
     productName: "",
@@ -38,18 +49,25 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
   });
 
   useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
+  fetchProducts();
+}, [page]);
+
+useEffect(() => {
+  fetchCategories();
+}, []);
 
   const fetchProducts = async () => {
-    try {
-      const res = await API.get("/products/all");
-      setProducts(res.data.products);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  try {
+    const res = await API.get(
+      `/products/all?page=${page}&limit=${limit}`
+    );
+
+    setProducts(res.data.products);
+    setTotalPages(res.data.totalPages);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const fetchCategories = async () => {
     try {
@@ -75,24 +93,60 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
       [e.target.name]: e.target.value,
     });
   };
+  const handleImageChange = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  if (e.target.files && e.target.files[0]) {
+    setImage(e.target.files[0]);
+    setPreview(URL.createObjectURL(e.target.files[0]));
+  }
+};
 
   const handleSaveProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
       if (editId) {
-        const res = await API.put(`/products/${editId}`, formData);
+const data = new FormData();
 
-        setProducts(
-          products.map((p) =>
-            p._id === editId ? res.data.product : p
-          )
-        );
+data.append("productName", formData.productName);
+data.append("category", formData.category);
+data.append("price", formData.price);
+data.append("quantity", formData.quantity);
 
-        setEditId(null);
+if (image) {
+  data.append("image", image);
+}
+
+await API.put(`/products/${editId}`, data, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
+fetchProducts();
+setEditId(null);
       } else {
-        const res = await API.post("/products/add", formData);
-        setProducts([res.data.product, ...products]);
+const data = new FormData();
+
+data.append("productName", formData.productName);
+data.append("category", formData.category);
+data.append("price", formData.price);
+data.append("quantity", formData.quantity);
+
+if (image) {
+  data.append("image", image);
+}
+
+await API.post("/products/add", data, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
+if (page !== 1) {
+  setPage(1);
+} else {
+  fetchProducts();
+}
       }
 
       setFormData({
@@ -102,6 +156,8 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
         quantity: "",
       });
 
+setImage(null);
+setPreview("");
       setShowForm(false);
     } catch (error) {
       console.log(error);
@@ -119,19 +175,36 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
       quantity: product.quantity,
     });
 
+    // ✅ Existing image preview dikhane ke liye
+  setPreview(product.image);
+
+  // ✅ Abhi koi nayi image select nahi hui hai
+  setImage(null);
+
+
     setEditId(product._id);
     setShowForm(true);
   };
 
   const handleDelete = async (id: string) => {
     try {
-      await API.delete(`/products/${id}`);
-      setProducts(products.filter((p) => p._id !== id));
+    await API.delete(`/products/${id}`);
+fetchProducts();
     } catch (error) {
       console.log(error);
     }
   };
-  const filteredProducts = products.filter((product) => {
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("isAuthenticated");
+
+  setIsAuthenticated(false);
+
+  navigate("/", { replace: true });
+};
+const filteredProducts = products.filter((product) => {
+
   const categoryName = getCategoryName(product.category);
 
   return (
@@ -141,7 +214,9 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
     product.quantity.toString().includes(search)
   );
 });
+  
 
+  
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#070B14] flex">
 
@@ -183,8 +258,8 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
               onSubmit={handleSaveProduct}
               className="grid grid-cols-1 md:grid-cols-2 gap-6"
             >
-
-              <input
+              
+       <input
                 name="productName"
                 value={formData.productName}
                 onChange={handleChange}
@@ -224,6 +299,26 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
                 className="h-14 px-4 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10"
               />
 
+              <div className="md:col-span-2">
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="w-full h-14 px-4 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10"
+  />
+
+  {preview && (
+    <img
+      src={preview}
+      alt="Preview"
+      className="mt-4 w-28 h-28 rounded-xl object-cover border"
+    />
+  )}
+
+</div>
+
+
               <button
                 type="submit"
                 className="md:col-span-2 bg-purple-500 hover:bg-purple-400 text-white py-4 rounded-2xl font-semibold"
@@ -234,10 +329,9 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
             </form>
           </div>
         )}
-
-        {/* TABLE CARD (VENDOR STYLE) */}
-        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
-<div className="p-6 border-b border-gray-200 dark:border-white/10">
+  {/* TABLE CARD (VENDOR STYLE) */}
+<div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] backdrop-blur-xl shadow-2xl shadow-purple-500/10 overflow-hidden">
+   <div className="p-6 border-b border-gray-200 dark:border-white/10">
   <input
     type="text"
     placeholder="Search products..."
@@ -251,11 +345,12 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
   />
 </div>
           {/* HEADER ROW */}
-          <div className="grid grid-cols-5 bg-purple-500/20 px-6 py-5 font-semibold text-gray-900 dark:text-white">
+   <div className="grid grid-cols-6 font-semibold bg-purple-500/20 gap-4 px-6 py-4 min-h-[90px] border-b border-gray-200 dark:border-white/5 items-center">          
             <p>Name</p>
             <p>Category</p>
             <p>Price</p>
             <p>Qty</p>
+            <p className="text-center">Image</p>
             <p className="text-center">Actions</p>
           </div>
 
@@ -264,29 +359,41 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
 {filteredProducts.length > 0 ? (
   filteredProducts.map((product) => (
     <div
-      key={product._id}
-      className="grid grid-cols-5 px-6 py-5 border-b border-gray-200 dark:border-white/5 items-center hover:bg-gray-100 dark:hover:bg-white/5 text-gray-700 dark:text-gray-300"
-    >
-      <p>{product.productName}</p>
-      <p>{getCategoryName(product.category)}</p>
-      <p>₹ {product.price}</p>
-      <p>{product.quantity}</p>
+  key={product._id}
+  className="grid grid-cols-6 gap-4 px-6 py-5 border-b border-gray-200 dark:border-white/5 items-center"
+>
+     <p>{product.productName}</p>
+<p>{getCategoryName(product.category)}</p>
+<p>₹ {product.price}</p>
+<p>{product.quantity}</p>
 
-      <div className="flex justify-center gap-3">
-        <button
-          onClick={() => handleEdit(product)}
-          className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center"
-        >
-          <Pencil size={18} />
-        </button>
+<div className="flex items-center justify-center h-full">
+  <img
+    src={
+      product.image && product.image.trim() !== ""
+        ? product.image
+        : "https://placehold.co/60x60?text=No+Image"
+    }
+    alt={product.productName}
+    className="w-16 h-16 rounded-xl object-cover border border-gray-300 shadow-sm"
+  />
+</div>
 
-        <button
-          onClick={() => handleDelete(product._id)}
-          className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center"
-        >
-          <Trash2 size={18} />
-        </button>
-      </div>
+<div className="flex justify-center gap-3">
+  <button
+    onClick={() => handleEdit(product)}
+    className="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center"
+  >
+    <Pencil size={18} />
+  </button>
+
+  <button
+    onClick={() => handleDelete(product._id)}
+    className="w-10 h-10 rounded-xl bg-red-500 text-white flex items-center justify-center"
+  >
+    <Trash2 size={18} />
+  </button>
+</div>
     </div>
   ))
 ) : (
@@ -295,6 +402,27 @@ function Products({ darkMode }: Readonly<ProductsProps>) {
   </div>
 )}
         </div>
+        <div className="flex justify-center items-center gap-4 mt-6 mb-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 rounded-lg bg-gray-300 disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="font-semibold">
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 rounded-lg bg-purple-600 text-white disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
 
       </div>
     </div>

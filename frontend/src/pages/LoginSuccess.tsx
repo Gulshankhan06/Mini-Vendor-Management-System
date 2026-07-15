@@ -5,27 +5,48 @@ function LoginSuccess({ setIsAuthenticated }: any) {
   const navigate = useNavigate();
 
   useEffect(() => {
+  const login = async () => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
-    console.log("TOKEN:", token);
 
-    if (token) {
-      // 1. Save token
-      localStorage.setItem("token", token);
+    if (!token) {
+      navigate("/login");
+      return;
+    }
 
-      // 2. Mark logged in
-      localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("token", token);
+    localStorage.setItem("isAuthenticated", "true");
 
-      // 3. Update React state
-      setIsAuthenticated(true);
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/auth/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      // 4. Redirect to home page
-      navigate("/", { replace: true });
-    } else {
-      // agar token nahi mila
+      const data = await res.json();
+if (data.success) {
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  setIsAuthenticated(true);
+
+  // Sirf Home page par redirect karo
+  navigate("/", { replace: true });
+} else {
+  navigate("/login");
+}
+      
+    } catch (err) {
+      console.log(err);
       navigate("/login");
     }
-  }, []);
+  };
+
+  login();
+}, []);
 
   return <div>Logging you in...</div>;
 }

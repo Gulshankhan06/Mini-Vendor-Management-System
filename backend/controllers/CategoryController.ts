@@ -172,9 +172,9 @@ export const updateCategory = async (
           status,
         },
         {
-          new: true,
-          runValidators: true,
-        }
+  returnDocument: "after",
+  runValidators: true,
+}
       );
 
     return res.status(200).json({

@@ -10,6 +10,7 @@ export const createCategory = async (categoryData: {
   name: string;
   description?: string;
   parent: string | null;
+  status?: "Active" | "Inactive";
 }) => {
   const response = await api.post(
     "/categories",
@@ -17,7 +18,6 @@ export const createCategory = async (categoryData: {
   );
   return response.data.data;
 };
-
 // 
 
 export const updateCategory = async (

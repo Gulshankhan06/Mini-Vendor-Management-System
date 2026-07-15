@@ -10,7 +10,7 @@ function Registration({ darkMode }: RegisterProps) {
 
   const [form, setForm] = useState({
     username: "",
-     name: "",
+    name: "",
     email: "",
     phone: "",
     password: "",
@@ -18,116 +18,59 @@ function Registration({ darkMode }: RegisterProps) {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-  const [otp, setOtp] = useState("");
 
-const [otpSent, setOtpSent] = useState(false);
-
-const [emailVerified, setEmailVerified] = useState(false);
-
-const [otpLoading, setOtpLoading] = useState(false);
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
-
   const validateForm = () => {
+    const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+    const nameRegex = /^[A-Za-z ]{2,50}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
     if (!form.username || !form.name || !form.email || !form.password) {
-      setMessage("All required fields must be filled");
+      setMessage("All required fields are required");
       return false;
     }
 
-    if (form.password.length < 6) {
+    if (!usernameRegex.test(form.username)) {
       setMessage(
-        "Password must be at least 6 characters"
+        "Username must contain only letters, numbers and underscore (3-20 characters).",
+      );
+      return false;
+    }
+
+    if (!nameRegex.test(form.name)) {
+      setMessage("Name should contain only letters and spaces.");
+      return false;
+    }
+
+    if (!emailRegex.test(form.email)) {
+      setMessage("Please enter a valid email address.");
+      return false;
+    }
+
+    if (form.phone && !phoneRegex.test(form.phone)) {
+      setMessage("Please enter a valid 10-digit phone number.");
+      return false;
+    }
+
+    if (!passwordRegex.test(form.password)) {
+      setMessage(
+        "Password must be at least 8 characters with uppercase, lowercase, number and special character.",
       );
       return false;
     }
 
     return true;
   };
-  const handleSendOtp = async () => {
-  if (!form.email) {
-    setMessage("Please enter email first");
-    return;
-  }
 
-  setOtpLoading(true);
-
-  try {
-    const res = await fetch(
-      "https://mini-vendor-management-system.onrender.com/api/auth/send-email-otp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: form.email,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setMessage(data.message);
-      setOtpLoading(false);
-      return;
-    }
-
-    setOtpSent(true);
-    setMessage("OTP sent successfully");
-  } catch (err) {
-    console.log(err);
-    setMessage("Server Error");
-  }
-
-  setOtpLoading(false);
-};
-const handleVerifyOtp = async () => {
-  if (!otp) {
-    setMessage("Enter OTP");
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      "https://mini-vendor-management-system.onrender.com/api/auth/verify-email-otp",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: form.email,
-          otp,
-        }),
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      setMessage(data.message);
-      return;
-    }
-
-    setEmailVerified(true);
-    setMessage("Email verified successfully");
-  } catch (err) {
-    console.log(err);
-    setMessage("Server Error");
-  }
-};
-
-  const handleRegister = async (
-    e: React.FormEvent
-  ) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) return;
@@ -136,37 +79,33 @@ const handleVerifyOtp = async () => {
     setMessage("");
 
     try {
-      const res = await fetch(
-        "https://mini-vendor-management-system.onrender.com/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setMessage(
-          data.message || "Registration failed"
-        );
+        setMessage(data.message || "Registration failed");
         setLoading(false);
         return;
       }
-setMessage("Registration successful");
+      setMessage("Registration successful");
 
-setTimeout(() => {
-  navigate("/login");
-}, 1000);
-      
+      setTimeout(() => {
+       navigate("/verify-email", {
+  state: {
+    email: form.email,
+  },
+}); 
+      }, 1000);
     } catch (err) {
       console.log(err);
-      setMessage(
-        "Server error. Please try again later."
-      );
+      setMessage("Server error. Please try again later.");
     }
 
     setLoading(false);
@@ -182,18 +121,14 @@ setTimeout(() => {
     >
       <div
         className={`w-full max-w-md rounded-3xl border backdrop-blur-xl shadow-2xl p-6 sm:p-8 transition-all ${
-          darkMode
-            ? "bg-white/5 border-white/10"
-            : "bg-white border-gray-200"
+          darkMode ? "bg-white/5 border-white/10" : "bg-white border-gray-200"
         }`}
       >
         {/* HEADER */}
         <div className="text-center mb-8">
           <h1
             className={`text-3xl sm:text-4xl font-bold ${
-              darkMode
-                ? "text-white"
-                : "text-gray-900"
+              darkMode ? "text-white" : "text-gray-900"
             }`}
           >
             Create Account
@@ -201,9 +136,7 @@ setTimeout(() => {
 
           <p
             className={`mt-2 text-sm sm:text-base ${
-              darkMode
-                ? "text-gray-400"
-                : "text-gray-500"
+              darkMode ? "text-gray-400" : "text-gray-500"
             }`}
           >
             Register to manage vendors
@@ -214,7 +147,7 @@ setTimeout(() => {
         {message && (
           <div
             className={`mb-5 rounded-xl p-3 text-center text-sm ${
-              message.includes("OTP")
+              message.includes("successful")
                 ? "bg-green-500/10 border border-green-500/20 text-green-500"
                 : "bg-red-500/10 border border-red-500/20 text-red-500"
             }`}
@@ -224,29 +157,33 @@ setTimeout(() => {
         )}
 
         {/* FORM */}
-        <form
-          onSubmit={handleRegister}
-          className="space-y-5"
-        >
+        <form onSubmit={handleRegister} className="space-y-5">
           <input
-  type="text"
-  name="username"
-  value={form.username}
-  onChange={handleChange}
-  placeholder="Username"
-  required
-  className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
-    darkMode
-      ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
-      : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
-  }`}
-/>
+            type="text"
+            name="username"
+            value={form.username}
+            onChange={handleChange}
+            placeholder="Username"
+            required
+            minLength={3}
+            maxLength={20}
+            pattern="^[a-zA-Z0-9_]{3,20}$"
+            title="Only letters, numbers and underscore allowed."
+            className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
+              darkMode
+                ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
+                : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
+            }`}
+          />
           <input
             name="name"
             value={form.name}
             onChange={handleChange}
             placeholder="Full Name"
             required
+            type="text"
+            pattern="^[A-Za-z ]{2,50}$"
+            title="Only letters and spaces are allowed."
             className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
               darkMode
                 ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
@@ -254,68 +191,34 @@ setTimeout(() => {
             }`}
           />
 
-          <div className="flex gap-2">
+         <div className="flex gap-2">
   <input
     type="email"
     name="email"
     value={form.email}
     onChange={handleChange}
     placeholder="Email Address"
-    required
-    className={`flex-1 h-14 px-4 rounded-xl border outline-none ${
-      darkMode
-        ? "bg-[#111827] text-white border-gray-700"
-        : "bg-gray-50 text-gray-900 border-gray-300"
-    }`}
+    className="flex-1 h-14 px-4 rounded-xl border"
   />
 
   <button
     type="button"
-    onClick={handleSendOtp}
-    disabled={otpLoading || emailVerified}
-    className="px-4 rounded-xl bg-blue-600 text-white"
+    onClick={handleRegister}
+    className="px-4 rounded-xl bg-purple-600 text-white"
   >
-    {emailVerified
-      ? "Verified"
-      : otpLoading
-      ? "Sending..."
-      : "Verify"}
+    Verify
   </button>
 </div>
-{otpSent && !emailVerified && (
-  <div className="flex gap-2">
-    <input
-      type="text"
-      value={otp}
-      onChange={(e) => setOtp(e.target.value)}
-      placeholder="Enter OTP"
-      className={`flex-1 h-14 px-4 rounded-xl border ${
-        darkMode
-          ? "bg-[#111827] text-white border-gray-700"
-          : "bg-gray-50 text-gray-900 border-gray-300"
-      }`}
-    />
-
-    <button
-      type="button"
-      onClick={handleVerifyOtp}
-      className="px-4 rounded-xl bg-green-600 text-white"
-    >
-      Verify OTP
-    </button>
-  </div>
-)}
-{emailVerified && (
-  <p className="text-green-500 font-medium">
-    ✅ Email Verified
-  </p>
-)}
 
           <input
             name="phone"
             value={form.phone}
             onChange={handleChange}
             placeholder="Phone Number"
+            type="tel"
+            maxLength={10}
+            pattern="[6-9]{1}[0-9]{9}"
+            title="Enter a valid 10-digit phone number."
             className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
               darkMode
                 ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
@@ -330,6 +233,8 @@ setTimeout(() => {
             onChange={handleChange}
             placeholder="Password"
             required
+            minLength={8}
+            title="Minimum 8 characters with uppercase, lowercase, number and special character."
             className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
               darkMode
                 ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
@@ -339,20 +244,16 @@ setTimeout(() => {
 
           <button
             type="submit"
-            disabled={loading || !emailVerified}
+            disabled={loading}
             className="w-full h-14 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-all disabled:opacity-50"
           >
-            {loading
-              ? "Creating Account..."
-              : "Create Account"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <p
           className={`text-center mt-6 text-sm ${
-            darkMode
-              ? "text-gray-400"
-              : "text-gray-600"
+            darkMode ? "text-gray-400" : "text-gray-600"
           }`}
         >
           Already have an account?{" "}

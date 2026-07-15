@@ -21,24 +21,14 @@ function VerifyEmail({ setIsAuthenticated, darkMode }: VerifyEmailProps) {
     setLoading(true);
 
     try {
-      const res = await api.post("/auth/verify-email-otp", {
-        email,
-        otp,
-      });
+      const res = await api.post("/auth/verify-email", {
+  email,
+  otp,
+});
 
       alert(res.data.message);
-
-      if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("isAuthenticated", "true");
-        setIsAuthenticated(true);
-      }
-
-      if (res.data.user) {
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-      }
-
-      navigate("/dashboard");
+navigate("/login");
+     
     } catch (err: any) {
       alert(
         err.response?.data?.message ||

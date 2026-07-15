@@ -10,6 +10,7 @@ export interface IVendor extends Document {
   phone: string;
   address: string;
   businessId: string;
+   image: string;
 }
 
 const vendorSchema: Schema<IVendor> =
@@ -39,6 +40,10 @@ const vendorSchema: Schema<IVendor> =
         type: String,
         required: true,
       },
+      image: {
+  type: String,
+  default: "",
+},
     },
     {
       timestamps: true,

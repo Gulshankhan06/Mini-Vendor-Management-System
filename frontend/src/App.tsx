@@ -30,9 +30,11 @@ function App() {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return JSON.parse(localStorage.getItem("isAuthenticated") || "false");
-  });
+  const token = localStorage.getItem("token");
+  const user = localStorage.getItem("user");
 
+  return !!token && !!user;
+});
   // ================= DARK MODE =================
   useEffect(() => {
     if (darkMode) {
@@ -44,10 +46,22 @@ function App() {
   }, [darkMode]);
 
   // ================= AUTH SYNC =================
-  useEffect(() => {
-    localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   localStorage.setItem("isAuthenticated", JSON.stringify(isAuthenticated));
+  // }, [isAuthenticated]);
 
+  useEffect(() => {
+  const checkAuth = () => {
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+
+    setIsAuthenticated(!!token && !!user);
+  };
+
+  window.addEventListener("storage", checkAuth);
+
+  return () => window.removeEventListener("storage", checkAuth);
+}, []);
   return (
     <div className="min-h-screen bg-white dark:bg-[#070B14] transition-all duration-300">
 
@@ -130,10 +144,13 @@ function App() {
           path="/vendors"
           element={
             isAuthenticated ? (
-              <Vendors
-                darkMode={darkMode}
-                setDarkMode={setDarkMode}
-              />
+         <Vendors
+  darkMode={darkMode}
+  setDarkMode={setDarkMode}
+  setIsAuthenticated={setIsAuthenticated}
+/>
+          
+          
             ) : (
               <Navigate to="/login" />
             )
@@ -144,8 +161,10 @@ function App() {
           path="/products"
           element={
             isAuthenticated ? (
-              <Products darkMode={darkMode} />
-            ) : (
+<Products
+  darkMode={darkMode}
+  setIsAuthenticated={setIsAuthenticated}
+/>            ) : (
               <Navigate to="/login" />
             )
           }

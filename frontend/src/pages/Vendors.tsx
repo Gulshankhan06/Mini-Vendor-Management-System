@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Plus,
@@ -24,6 +25,7 @@ interface Vendor {
   phone: string;
   address: string;
   businessId: string;
+   image: string;
 }
 
 interface FormData {
@@ -33,16 +35,18 @@ interface FormData {
   address: string;
   businessId: string;
 }
-
 interface VendorsProps {
   darkMode: boolean;
   setDarkMode: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 }
-
 function Vendors({
   darkMode,
   setDarkMode,
+  setIsAuthenticated,
 }: VendorsProps) {
+    const navigate = useNavigate();
+
 
   const [showForm, setShowForm] = useState<boolean>(false);
 
@@ -50,6 +54,11 @@ function Vendors({
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+const [image, setImage] = useState<File | null>(null);
+const [preview, setPreview] = useState("");
+const limit = 5;
 
   const [formData, setFormData] = useState<FormData>({
     vendorName: "",
@@ -59,18 +68,24 @@ function Vendors({
     businessId: "",
   });
 
-  useEffect(() => {
-    fetchVendors();
-  }, []);
+ useEffect(() => {
+  fetchVendors();
+}, [page]);
 
   const fetchVendors = async (): Promise<void> => {
-    try {
-      const res = await API.get("/vendors/all");
-      setVendors(res.data.vendors as Vendor[]);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  try {
+    console.log("Current Page:", page);
+    const res = await API.get(
+      `/vendors/all?page=${page}&limit=${limit}`
+    );
+    console.log("API Response:", res.data);
+
+    setVendors(res.data.vendors);
+    setTotalPages(res.data.totalPages);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -80,6 +95,15 @@ function Vendors({
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleImageChange = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  if (e.target.files && e.target.files[0]) {
+    setImage(e.target.files[0]);
+    setPreview(URL.createObjectURL(e.target.files[0]));
+  }
+};
 
   const handleSaveVendor = async (
     e: React.FormEvent<HTMLFormElement>
@@ -102,25 +126,55 @@ function Vendors({
 
       if (editIndex !== null) {
 
-        await API.put(
-          `/vendors/${vendors[editIndex]._id}`,
-          formData
-        );
+      const data = new FormData();
+
+data.append("vendorName", formData.vendorName);
+data.append("email", formData.email);
+data.append("phone", formData.phone);
+data.append("address", formData.address);
+data.append("businessId", formData.businessId);
+
+if (image) {
+  data.append("image", image);
+}
+
+await API.put(
+  `/vendors/${vendors[editIndex]._id}`,
+  data,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  }
+);
 
         fetchVendors();
         setEditIndex(null);
 
       } else {
+const data = new FormData();
 
-        const res = await API.post(
-          "/vendors/add",
-          formData
-        );
+data.append("vendorName", formData.vendorName);
+data.append("email", formData.email);
+data.append("phone", formData.phone);
+data.append("address", formData.address);
+data.append("businessId", formData.businessId);
 
-        setVendors([
-          res.data.vendor,
-          ...vendors,
-        ]);
+if (image) {
+  data.append("image", image);
+}
+
+await API.post("/vendors/add", data, {
+  headers: {
+    "Content-Type": "multipart/form-data",
+  },
+});
+
+if (page !== 1) {
+  setPage(1);
+} else {
+  fetchVendors();
+}
       }
 
       setFormData({
@@ -130,7 +184,8 @@ function Vendors({
         address: "",
         businessId: "",
       });
-
+setImage(null);
+setPreview("");
       setShowForm(false);
 
     } catch (error) {
@@ -148,6 +203,8 @@ function Vendors({
       businessId: vendors[index].businessId,
     });
 
+    setPreview(vendors[index].image);
+setImage(null);
     setEditIndex(index);
     setShowForm(true);
   };
@@ -173,7 +230,15 @@ function Vendors({
   vendor.address.toLowerCase().includes(search.toLowerCase()) ||
   vendor.businessId.toLowerCase().includes(search.toLowerCase())
 );
+const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("isAuthenticated");
 
+  setIsAuthenticated(false);
+
+  navigate("/", { replace: true });
+};
   return (
 
     
@@ -185,8 +250,10 @@ function Vendors({
 
     {/* Sidebar Desktop Only */}
     <div className="hidden lg:block w-64 bg-white dark:bg-black border-r border-gray-200 dark:border-white/10">
-    <Sidebar darkMode={darkMode} />   
-    </div>
+<Sidebar
+  darkMode={darkMode}
+  onLogout={handleLogout}
+/>    </div>
 
     {/* Content */}
     <div className="flex-1 p-4 md:p-6 lg:p-10">
@@ -221,6 +288,7 @@ function Vendors({
                  phone: "",
                  address: "",
                  businessId: "",
+
               });
             }
           }}
@@ -385,10 +453,33 @@ function Vendors({
                     placeholder="Enter business ID"
                     className="w-full h-full bg-transparent outline-none text-gray-900 dark:text-white placeholder:text-gray-500 px-3"
                   />
-
+                  
+ 
                 </div>
 
+
               </div>
+<div>
+               <label className="text-gray-700 dark:text-gray-300 text-sm block mb-3">
+    Vendor Profile
+  </label>
+
+  <input
+    type="file"
+    accept="image/*"
+    onChange={handleImageChange}
+    className="w-full h-14 px-4 rounded-2xl bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/10"
+  />
+
+  {preview && (
+    <img
+      src={preview}
+      alt="Preview"
+      className="mt-4 w-24 h-24 rounded-xl object-cover border"
+    />
+  )}
+</div>
+
 
               {/* ================= SAVE BUTTON ================= */}
 
@@ -431,13 +522,13 @@ function Vendors({
   />
 </div>
 
-        <div className="overflow-x-auto">
+<div className="overflow-x-auto">
 
           <div className="min-w-[1000px]">
 
             {/* ================= TABLE HEADER ================= */}
 
-            <div className="grid grid-cols-6 bg-purple-500/20 border-b border-gray-200 dark:border-white/10 px-6 py-5">
+            <div className="grid grid-cols-7 bg-purple-500/20 border-b border-gray-200 dark:border-white/10 px-6 py-5">
 
               <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
                 Vendor Name
@@ -458,6 +549,9 @@ function Vendors({
               <h3 className="text-gray-900 dark:text-white font-semibold text-lg">
                 Business ID
               </h3>
+               <h3 className="text-gray-900 dark:text-white font-semibold text-lg text-center">
+                 Image
+              </h3>
 
               <h3 className="text-gray-900 dark:text-white font-semibold text-lg text-center">
                 Actions
@@ -469,11 +563,11 @@ function Vendors({
 
             {
             
-filteredVendors.length > 0 ? (
-  filteredVendors.map((vendor, index) => (
+     filteredVendors.length > 0 ? (
+      filteredVendors.map((vendor, index) => (
                   <div
                     key={vendor._id}
-                    className="grid grid-cols-6 px-6 py-5 border-b border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition duration-300 items-center"
+                    className="grid grid-cols-7 px-6 py-5 border-b border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/5 transition duration-300 items-center"
                   >
 
                     <p className="text-gray-700 dark:text-gray-300 break-words pr-4">
@@ -495,6 +589,18 @@ filteredVendors.length > 0 ? (
                     <p className="text-gray-700 dark:text-gray-300">
                       {vendor.businessId}
                     </p>
+                    <div className="flex items-center justify-center">
+  <img
+    src={
+      vendor.image
+        ? vendor.image
+        : "https://placehold.co/60x60?text=No+Image"
+    }
+    alt={vendor.vendorName}
+    className="w-14 h-14 rounded-xl object-cover border"
+  />
+</div>
+
 
                     {/* ================= ACTION BUTTONS ================= */}
 
@@ -521,8 +627,10 @@ filteredVendors.length > 0 ? (
                         <Trash2 size={18} />
 
                       </button>
+                   
 
                     </div>
+                    
 
                   </div>
 
@@ -550,7 +658,29 @@ filteredVendors.length > 0 ? (
       </div>
 
     </div>
+   
     </div>
+    <div className="flex justify-center items-center gap-4 mt-6 mb-6">
+  <button
+    disabled={page === 1}
+    onClick={() => setPage(page - 1)}
+    className="px-4 py-2 rounded-lg bg-gray-300 disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="font-semibold text-lg">
+    Page {page} of {totalPages}
+  </span>
+
+  <button
+    disabled={page === totalPages}
+    onClick={() => setPage(page + 1)}
+    className="px-4 py-2 rounded-lg bg-purple-600 text-white disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
     </div>
     </div>
   );

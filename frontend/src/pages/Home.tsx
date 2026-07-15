@@ -31,17 +31,26 @@ function Home({
 }: HomeProps) {
 
   const navigate = useNavigate();
+  const user = isAuthenticated
+  ? JSON.parse(localStorage.getItem("user") || "null")
+  : null;
+const role = user?.role;
 
 const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
+console.log("isAuthenticated:", isAuthenticated);
+  console.log("user:", user);
+  console.log("role:", role);
+
 const handleLogout = (): void => {
-    localStorage.removeItem("isAuthenticated");
+  localStorage.removeItem("isAuthenticated");
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 
-    setIsAuthenticated(false);
+  setIsAuthenticated(false);
 
-    navigate("/");
-
-  };
+  navigate("/");
+};
 
   return (
 
@@ -305,26 +314,28 @@ const handleLogout = (): void => {
 
               )
             }
-{
-  isAuthenticated && (
-    <>
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20 w-full sm:w-auto"
-      >
-        Admin Dashboard
-      </button>
 
-      <button
-        onClick={() => navigate("/vendor-dashboard")}
-        className="bg-green-500 hover:bg-green-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-green-500/20 w-full sm:w-auto"
-      >
-        Vendor Dashboard
-      </button>
-    </>
+   {
+  isAuthenticated && role === "admin" && (
+    <button
+      onClick={() => navigate("/dashboard")}
+      className="bg-purple-500 hover:bg-purple-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-purple-500/20 w-full sm:w-auto"
+    >
+      Admin Dashboard
+    </button>
   )
 }
-           
+
+{
+  isAuthenticated && role === "vendor" && (
+    <button
+      onClick={() => navigate("/vendor-dashboard")}
+      className="bg-green-500 hover:bg-green-400 text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 shadow-lg shadow-green-500/20 w-full sm:w-auto"
+    >
+      Vendor Dashboard
+    </button>
+  )
+}        
             <button className="bg-black/5 dark:bg-white/5 border border-gray-300 dark:border-white/10 hover:border-purple-400 hover:text-purple-400 text-gray-900 dark:text-white px-8 py-4 rounded-2xl text-lg font-semibold transition duration-300 backdrop-blur-xl w-full sm:w-auto">
 
               Learn More

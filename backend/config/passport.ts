@@ -33,6 +33,7 @@ user = await User.create({
   email,
   isEmailVerified: true,
   provider: "google",
+  role: "vendor",
 });
         }
 

@@ -74,17 +74,16 @@ const fetchDashboardData = async (): Promise<void> => {
   };
 
   // ================= LOGOUT =================
-
 const handleLogout = (): void => {
-    localStorage.removeItem(
-      "isAuthenticated"
-    );
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("isAuthenticated");
 
-    setIsAuthenticated(false);
+  setIsAuthenticated(false);
 
-    navigate("/");
+  navigate("/", { replace: true });
+};
 
-  };
 
   return (
 

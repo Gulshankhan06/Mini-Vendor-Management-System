@@ -6,6 +6,13 @@ import User from "../models/UserModel";
 import { sendVerificationEmail } from "../utils/sendEmail";
 import { generateOTP } from "../utils/otp";
 import Otp from "../models/OtpModel";
+import uploadToCloudinary from "../utils/uploadToCloudinary";
+const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+const nameRegex = /^[A-Za-z ]{2,50}$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^[6-9]\d{9}$/;
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 export const register = async (
   req: Request,
   res: Response
@@ -22,6 +29,56 @@ export const register = async (
       password,
       role,
     } = req.body;
+
+    // Required Fields
+if (!username || !name || !email || !password) {
+  return res.status(400).json({
+    success: false,
+    message: "All required fields are required",
+  });
+}
+
+// Username
+if (!usernameRegex.test(username)) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "Username must be 3-20 characters and contain only letters, numbers and underscore.",
+  });
+}
+
+// Name
+if (!nameRegex.test(name)) {
+  return res.status(400).json({
+    success: false,
+    message: "Name should contain only letters and spaces.",
+  });
+}
+
+// Email
+if (!emailRegex.test(email)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid email format.",
+  });
+}
+
+// Phone
+if (phone && !phoneRegex.test(phone)) {
+  return res.status(400).json({
+    success: false,
+    message: "Invalid phone number.",
+  });
+}
+
+// Password
+if (!passwordRegex.test(password)) {
+  return res.status(400).json({
+    success: false,
+    message:
+      "Password must contain uppercase, lowercase, number and special character and be at least 8 characters.",
+  });
+}
 
     // Check Username
     const existingUsername = await User.findOne({
@@ -55,34 +112,47 @@ export const register = async (
       "password hashed"
     );
 // Check if email is verified
-const otpRecord = await Otp.findOne({
+// const otpRecord = await Otp.findOne({
+//   email,
+//   verified: true,
+// });
+
+// if (!otpRecord) {
+//   return res.status(400).json({
+//     success: false,
+//     message: "Please verify your email first",
+//   });
+// }
+// Generate OTP
+const otp = generateOTP();
+
+// Remove old OTP if exists
+await Otp.deleteOne({ email });
+
+// Save OTP + Temporary User Data
+await Otp.create({
   email,
-  verified: true,
+  otp,
+  expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
+
+  userData: {
+    username: username.toLowerCase(),
+    name,
+    email,
+    phone,
+    password: hashed,
+    role: role || "vendor",
+  },
 });
 
-if (!otpRecord) {
-  return res.status(400).json({
-    success: false,
-    message: "Please verify your email first",
-  });
-}
-const user = await User.create({
-  username: username.toLowerCase(),
-  name,
+// Send OTP Email
+await sendVerificationEmail(email, otp);
+
+return res.status(200).json({
+  success: true,
+  message: "OTP sent successfully",
   email,
-  phone,
-  password: hashed,
-  role: role || "vendor",
-  provider: "local",
-  isEmailVerified: true,
-}); 
-await Otp.deleteOne({ email });
-    return res.status(201).json({
-      success: true,
-      message:
-        "Registered successfully. Verify email OTP.",
-      email: user.email,
-    });
+});
   } catch (err) {
     console.log(err);
 
@@ -102,6 +172,18 @@ export const login = async (
 
   try {
     const { email, password } = req.body;
+
+    if (!emailRegex.test(email)) {
+  return res.status(400).json({
+    message: "Invalid email format",
+  });
+}
+
+if (!password) {
+  return res.status(400).json({
+    message: "Password is required",
+  });
+}
 
     const user = await User.findOne({ email });
     console.timeLog("LOGIN", "user found");
@@ -137,15 +219,7 @@ export const login = async (
       });
     }
 
-    if (!user.isEmailVerified) {
-      return res.json({
-        success: false,
-        emailVerified: false,
-        email: user.email,
-        message: "OTP generation skipped for testing",
-      });
-    }
-
+    
     const token = jwt.sign(
       {
         id: user._id,
@@ -185,52 +259,7 @@ export const login = async (
     });
   }
 };
-export const verifyEmailOtp = async (
-  req: Request,
-  res: Response
-) => {
-  try {
-    const { email, otp } = req.body;
 
-    const otpData = await Otp.findOne({ email });
-
-    if (!otpData) {
-      return res.status(404).json({
-        success: false,
-        message: "OTP not found. Please request a new OTP.",
-      });
-    }
-
-    if (otpData.otp !== otp) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid OTP",
-      });
-    }
-
-    if (new Date() > otpData.expiresAt) {
-      return res.status(400).json({
-        success: false,
-        message: "OTP expired",
-      });
-    }
-
-    otpData.verified = true;
-    await otpData.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Email verified successfully",
-    });
-  } catch (err) {
-    console.log(err);
-
-    return res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
-  }
-};
 export const profile = async (
   req: Request,
   res: Response
@@ -287,53 +316,188 @@ export const googleCallback = async (
     );
   }
 };
-export const sendEmailOtp = async (
+export const verifyEmailOtp = async (
   req: Request,
   res: Response
 ) => {
   try {
-    const { email } = req.body;
+    const { email, otp } = req.body;
 
-    // Check email
-    if (!email) {
+    const otpRecord = await Otp.findOne({ email });
+
+    if (!otpRecord) {
       return res.status(400).json({
         success: false,
-        message: "Email is required",
+        message: "OTP not found",
       });
     }
 
-    // Email already registered?
-    const existingUser = await User.findOne({ email });
+    if (otpRecord.expiresAt < new Date()) {
+      await Otp.deleteOne({ email });
 
-    if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "Email already exists",
+        message: "OTP expired",
       });
     }
 
-    // Generate OTP
-    const otp = generateOTP();
+    if (otpRecord.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
 
-    // Delete old OTP if exists
-    await Otp.deleteMany({ email });
-
-    // Save new OTP
-    await Otp.create({
-      email,
-      otp,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-      verified: false,
+    await User.create({
+      ...otpRecord.userData,
+      provider: "local",
+      isEmailVerified: true,
     });
 
-    // Send Email
-    await sendVerificationEmail(email, otp);
+    await Otp.deleteOne({ email });
 
     return res.status(200).json({
       success: true,
-      message: "OTP sent successfully",
+      message: "Email verified successfully",
     });
 
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+export const updateProfile = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const { name, phone, password } = req.body;
+
+    const updateData: any = {};
+
+    if (name) updateData.name = name;
+    if (phone) updateData.phone = phone;
+
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      updateData,
+      {
+        new: true,
+      }
+    ).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+export const deleteProfile = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+
+    const userId = (req as any).user.id;
+
+    await User.findByIdAndDelete(userId);
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile deleted successfully",
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+export const getCurrentUser = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = (req as any).user.id;
+
+    const user = await User.findById(userId).select("-password");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+export const uploadProfileImage = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = (req as any).user.id;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select an image",
+      });
+    }
+
+    const imageUrl = await uploadToCloudinary(
+      req.file,
+      "profile-images"
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        image: imageUrl,
+      },
+      {
+        new: true,
+      }
+    ).select("-password");
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile image updated successfully",
+      user: updatedUser,
+    });
   } catch (err) {
     console.log(err);
 

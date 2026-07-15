@@ -19,27 +19,42 @@ type Props = {
 function VendorDashboard({ darkMode }: Props) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+ 
+  interface User {
+  _id: string;
+  username: string;
+  name: string;
+  email: string;
+  phone?: string;
+  role: string;
+  image?: string;
+}
 
-  const navigate = useNavigate();
+const [user, setUser] = useState<User | null>(null);
+const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
+useEffect(() => {
+  const token = localStorage.getItem("token");
 
-    if (!token || user.role !== "vendor") return;
+  if (!token) return;
 
-    fetch(
-      `https://mini-vendor-management-system.onrender.com/api/vendors/dashboard/${user._id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((res) => res.json())
-      .then((data) => setStats(data))
-      .catch(console.log);
-  }, []);
+  API.get("/auth/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      setUser(res.data.user);
+    })
+    .catch(console.log);
+}, []);
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  localStorage.removeItem("isAuthenticated");
+
+  navigate("/login", { replace: true });
+};
 
   return (
     <div className={`${darkMode ? "dark" : ""}`}>
@@ -94,13 +109,7 @@ function VendorDashboard({ darkMode }: Props) {
                 <span className="text-[17px] font-medium">Profile</span>
               </Link>
 
-              <Link
-                to="/vendor-orders"
-                className="flex items-center gap-4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 px-5 py-4 rounded-2xl"
-              >
-                <Users size={22} />
-                <span className="text-[17px] font-medium">Orders</span>
-              </Link>
+             
 
               <Link
                 to="/vendor-chat"
@@ -113,12 +122,12 @@ function VendorDashboard({ darkMode }: Props) {
           </div>
 
           {/* FOOTER */}
-          <button
-            onClick={() => navigate("/")}
-            className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-400 text-white py-4 rounded-2xl font-semibold transition"
-          >
-            Logout
-          </button>
+         <button
+  onClick={handleLogout}
+  className="w-full flex items-center justify-center gap-3 bg-red-500 hover:bg-red-400 text-white py-4 rounded-2xl font-semibold transition"
+>
+  Logout
+</button>
         </div>
 
         {/* OVERLAY */}
@@ -159,33 +168,66 @@ function VendorDashboard({ darkMode }: Props) {
           </div>
 
           {/* ================= CARDS ================= */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+         <div className="max-w-2xl">
 
-            {/* TOTAL ORDERS */}
-            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[28px] p-6 shadow-xl">
-              <p className="text-gray-500 dark:text-gray-400">Total Orders</p>
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mt-4">
-                {stats?.totalOrders || 0}
-              </h2>
-            </div>
+  <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[30px] shadow-xl p-10">
 
-            {/* PENDING */}
-            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[28px] p-6 shadow-xl">
-              <p className="text-gray-500 dark:text-gray-400">Pending Orders</p>
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mt-4">
-                {stats?.pendingOrders || 0}
-              </h2>
-            </div>
+    <div className="flex flex-col items-center">
 
-            {/* COMPLETED */}
-            <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[28px] p-6 shadow-xl">
-              <p className="text-gray-500 dark:text-gray-400">Completed Orders</p>
-              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mt-4">
-                {stats?.completedOrders || 0}
-              </h2>
-            </div>
+      <img
+        src={
+          user?.image
+            ? user.image
+            : "https://placehold.co/150x150?text=Profile"
+        }
+        alt="Vendor"
+        className="w-40 h-40 rounded-full object-cover border-4 border-purple-500"
+      />
 
-          </div>
+      <h2 className="text-3xl font-bold mt-6 text-gray-900 dark:text-white">
+    {user?.name}  </h2>
+
+      <p className="text-gray-500 mt-2">
+        Vendor
+      </p>
+
+    </div>
+
+    <div className="grid grid-cols-1 gap-5 mt-10">
+
+      <div>
+        <p className="text-gray-500">Email</p>
+
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+{user?.email}        </h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Phone</p>
+
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+  {user?.phone}      </h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Role</p>
+
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+{user?.role}        </h3>
+      </div>
+
+      <div>
+        <p className="text-gray-500">Username</p>
+
+        <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+{user?.username}        </h3>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
         </div>
       </div>
 

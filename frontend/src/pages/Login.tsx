@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 interface LoginProps {
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
@@ -17,7 +17,7 @@ function Login({ setIsAuthenticated, darkMode }: LoginProps) {
 
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
-
+const [showPassword, setShowPassword] = useState(false);
   // ================= GOOGLE REDIRECT HANDLER =================
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -45,17 +45,36 @@ function Login({ setIsAuthenticated, darkMode }: LoginProps) {
     });
   };
 
-  // ================= LOGIN =================
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+const validateLogin = () => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    setLoading(true);
-    setMessage("");
+  if (!formData.email || !formData.password) {
+    setMessage("Email and Password are required.");
+    return false;
+  }
+
+  if (!emailRegex.test(formData.email)) {
+    setMessage("Please enter a valid email address.");
+    return false;
+  }
+
+  return true;
+};
+
+
+  // ================= LOGIN =================
+ const handleLogin = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!validateLogin()) return;
+
+  setLoading(true);
+  setMessage("");
 
     try {
       const res = await fetch(
-        "https://mini-vendor-management-system.onrender.com/api/auth/login",
-        {
+ `${import.meta.env.VITE_BACKEND_URL}/api/auth/login`,    
+     {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -102,7 +121,7 @@ function Login({ setIsAuthenticated, darkMode }: LoginProps) {
   // ================= GOOGLE LOGIN HANDLER =================
   const handleGoogleLogin = () => {
   const API_URL =
-    import.meta.env.VITE_BACKEND_URL || "https://mini-vendor-management-system.onrender.com";
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
   window.location.href = `${API_URL}/api/auth/google`;
 };
@@ -165,6 +184,7 @@ function Login({ setIsAuthenticated, darkMode }: LoginProps) {
               onChange={handleChange}
               placeholder="Enter your email"
               required
+              title="Enter a valid email address."
               className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
                 darkMode
                   ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
@@ -174,30 +194,42 @@ function Login({ setIsAuthenticated, darkMode }: LoginProps) {
           </div>
 
           {/* PASSWORD */}
-          <div>
-            <label
-              className={`block mb-2 text-sm font-medium ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Password
-            </label>
 
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-              className={`w-full h-14 px-4 rounded-xl border outline-none transition-all ${
-                darkMode
-                  ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
-                  : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
-              }`}
-            />
-          </div>
+<div>
+  <label
+    className={`block mb-2 text-sm font-medium ${
+      darkMode ? "text-gray-300" : "text-gray-700"
+    }`}
+  >
+    Password
+  </label>
 
+  <div className="relative">
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      value={formData.password}
+      onChange={handleChange}
+      placeholder="Enter your password"
+      required
+      className={`w-full h-14 px-4 pr-12 rounded-xl border outline-none transition-all ${
+        darkMode
+          ? "bg-[#111827] text-white border-gray-700 placeholder-gray-400 focus:border-purple-500"
+          : "bg-gray-50 text-gray-900 border-gray-300 placeholder-gray-500 focus:border-purple-500"
+      }`}
+    />
+
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className={`absolute right-4 top-1/2 -translate-y-1/2 ${
+        darkMode ? "text-gray-400" : "text-gray-500"
+      }`}
+    >
+      {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+    </button>
+  </div>
+</div>
           {/* LOGIN BUTTON */}
           <button
             type="submit"

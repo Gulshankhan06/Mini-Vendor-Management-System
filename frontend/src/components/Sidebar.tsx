@@ -33,16 +33,19 @@ const Sidebar = ({
   return (
     <div
       className={`
-        fixed md:static top-0 left-0 z-50
-        w-[280px] h-screen
-        bg-white dark:bg-white/5
-        border-r border-gray-200 dark:border-white/10
-        backdrop-blur-xl
-        p-6 flex flex-col justify-between
-        transform transition-transform duration-300
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        md:translate-x-0
-      `}
+  fixed top-0 left-0 z-50
+  w-[280px] h-screen
+  bg-white dark:bg-white/5
+  border-r border-gray-200 dark:border-white/10
+  backdrop-blur-xl
+  p-6
+  flex flex-col
+  justify-between
+  overflow-y-auto
+  transform transition-transform duration-300
+  ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+  md:translate-x-0
+`}
     >
       {/* CLOSE BUTTON (MOBILE) */}
       <div className="flex justify-end md:hidden">

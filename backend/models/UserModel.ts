@@ -13,6 +13,7 @@ export interface IUser extends Document {
   role: "admin" | "vendor";
 
   isEmailVerified: boolean;
+  image:string;
 
   
 }
@@ -25,11 +26,15 @@ const userSchema: Schema<IUser> = new Schema(
   unique: true,
   trim: true,
   lowercase: true,
+   minlength: 3,
+  maxlength: 20,
+  match: /^[a-zA-Z0-9_]{3,20}$/,
 },
-    name: { type: String, required: true, trim: true },
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    name: { type: String, required: true, trim: true , match: /^[A-Za-z ]{2,50}$/,},
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true ,  match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+},
 
-    phone: { type: String, default: null },
+    phone: { type: String, default: null, match: /^[6-9]\d{9}$/, },
 
     password: { type: String, default: null },
 
@@ -49,6 +54,10 @@ const userSchema: Schema<IUser> = new Schema(
 
     isEmailVerified: { type: Boolean, default: false },
 
+image: {
+  type: String,
+  default: "",
+},
    
   },
   { timestamps: true }

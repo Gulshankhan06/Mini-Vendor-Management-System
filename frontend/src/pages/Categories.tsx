@@ -78,21 +78,26 @@ const filteredTree = useMemo(() => {
   if (!search.trim()) return categoryTree;
   return filterTree(categoryTree);
 }, [categoryTree, search]);
-
-  const handleSave = async (data: { name: string; parent: string | null }) => {
+const handleSave = async (data: {
+  name: string;
+  parent: string | null;
+  isActive: boolean;
+}) => {
     try {
       if (editCategory) {
-        await updateCategory(editCategory._id, {
-          name: data.name,
-          parent: data.parent,
+       await updateCategory(editCategory._id, {
+  name: data.name,
+  parent: data.parent,
+  status: data.isActive ? "Active" : "Inactive",
+});
           
-        });
+        
       } else {
-        await createCategory({
-          name: data.name,
-          parent: data.parent,
-         
-        });
+       await createCategory({
+  name: data.name,
+  parent: data.parent,
+  status: data.isActive ? "Active" : "Inactive",
+});
       }
 
       await fetchCategories();

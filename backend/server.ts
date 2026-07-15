@@ -17,15 +17,20 @@ import chatRoutes from "./routes/ChatRoutes";
 
 import passport from "./config/passport";
 import dns from "dns";
+import { seedAdmin } from "./utils/seedAdmin";
 
-connectDB();
-dns.lookup("smtp.gmail.com", (err, address, family) => {
-  if (err) {
-    console.log("❌ DNS Error:", err);
-  } else {
-    console.log("✅ DNS:", address, family);
-  }
-});
+(async () => {
+  await connectDB();
+  await seedAdmin();
+
+  dns.lookup("smtp.gmail.com", (err, address, family) => {
+    if (err) {
+      console.log("❌ DNS Error:", err);
+    } else {
+      console.log("✅ DNS:", address, family);
+    }
+  });
+})();
 
 const app = express();
 
@@ -55,6 +60,9 @@ app.use("/api/chat", chatRoutes);
 
 app.get("/", (req, res) => {
   res.send("Server Running 🚀");
+});
+app.get("/test-google", (req, res) => {
+  res.send("Google Route Test");
 });
 
 const PORT = process.env.PORT || 5000;
