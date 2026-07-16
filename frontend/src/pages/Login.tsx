@@ -121,7 +121,7 @@ const validateLogin = () => {
   // ================= GOOGLE LOGIN HANDLER =================
   const handleGoogleLogin = () => {
   const API_URL =
-    import.meta.env.VITE_BACKEND_URL || "https://mini-vendor-management-system-backend.onrender.com";
+    import.meta.env.VITE_BACKEND_URL || "https://mini-vendor-management-system.onrender.com";
 
   window.location.href = `${API_URL}/api/auth/google`;
 };
