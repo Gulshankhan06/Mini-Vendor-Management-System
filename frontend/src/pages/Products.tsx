@@ -344,6 +344,7 @@ const filteredProducts = products.filter((product) => {
     }`}
   />
 </div>
+<div className="hidden md:block">
           {/* HEADER ROW */}
    <div className="grid grid-cols-6 font-semibold bg-purple-500/20 gap-4 px-6 py-4 min-h-[90px] border-b border-gray-200 dark:border-white/5 items-center">          
             <p>Name</p>
@@ -402,6 +403,81 @@ const filteredProducts = products.filter((product) => {
   </div>
 )}
         </div>
+       <div className="block md:hidden p-4 space-y-4">
+
+  {filteredProducts.length > 0 ? (
+    filteredProducts.map((product) => (
+      <div
+        key={product._id}
+        className="bg-white dark:bg-white/5 rounded-2xl border border-gray-200 dark:border-white/10 p-4 shadow"
+      >
+
+        <div className="flex justify-center mb-4">
+          <img
+            src={
+              product.image && product.image.trim() !== ""
+                ? product.image
+                : "https://placehold.co/100x100?text=No+Image"
+            }
+            alt={product.productName}
+            className="w-24 h-24 rounded-xl object-cover border"
+          />
+        </div>
+
+        <div className="space-y-2">
+
+          <p>
+            <span className="font-semibold">Name:</span>{" "}
+            {product.productName}
+          </p>
+
+          <p>
+            <span className="font-semibold">Category:</span>{" "}
+            {getCategoryName(product.category)}
+          </p>
+
+          <p>
+            <span className="font-semibold">Price:</span> ₹ {product.price}
+          </p>
+
+          <p>
+            <span className="font-semibold">Quantity:</span>{" "}
+            {product.quantity}
+          </p>
+
+        </div>
+
+        <div className="flex justify-center gap-4 mt-5">
+
+          <button
+            onClick={() => handleEdit(product)}
+            className="bg-blue-500 text-white rounded-xl px-5 py-2"
+          >
+            <Pencil size={18} />
+          </button>
+
+          <button
+            onClick={() => handleDelete(product._id)}
+            className="bg-red-500 text-white rounded-xl px-5 py-2"
+          >
+            <Trash2 size={18} />
+          </button>
+
+        </div>
+
+      </div>
+    ))
+  ) : (
+    <div className="text-center py-6">
+      No products found.
+    </div>
+  )}
+
+</div> 
+        </div>
+        
+
+
         <div className="flex justify-center items-center gap-4 mt-6 mb-6">
   <button
     disabled={page === 1}

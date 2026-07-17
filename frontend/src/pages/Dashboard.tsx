@@ -240,7 +240,7 @@ const handleLogout = (): void => {
 
               </div>
 
-              <h1 className="text-2xl font-bold text-white">
+              <h1 className="text-2xl text-gray-900 font-bold  dark:text-white">
 
                 VendorFlow
 
@@ -250,7 +250,7 @@ const handleLogout = (): void => {
 
             <button
               onClick={() => setSidebarOpen(true)}
-              className="text-white text-4xl"
+              className="dark:text-white text-gray-900 text-4xl"
             >
               ☰
             </button>
